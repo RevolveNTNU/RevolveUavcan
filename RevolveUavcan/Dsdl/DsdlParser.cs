@@ -622,13 +622,13 @@ namespace RevolveUavcan.Dsdl
             var filename = Path.GetFullPath(refFilename);
 
             var directory = Path.GetFullPath(DsdlPath);
-            var rootNs = directory.Split('\\').Last();
+            var rootNs = directory.Split(Path.DirectorySeparatorChar).Last();
             if (filename.StartsWith(directory))
             {
                 var dirLen = directory.Length;
                 var basenameLen = Path.GetFileName(filename).Length;
                 var ns = filename.Substring(dirLen, filename.Length - dirLen - basenameLen);
-                ns = (ns.Replace('\\', '.')).Trim('.');
+                ns = (ns.Replace(Path.DirectorySeparatorChar, '.')).Trim('.');
                 return ns;
             }
 
