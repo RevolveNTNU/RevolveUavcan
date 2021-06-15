@@ -41,7 +41,16 @@ namespace RevolveUavcan.Tools
 
         public static BitArray InsertRange(this BitArray sourceArray, BitArray targetArray, int startIndex)
         {
-            for (int i = 0; i < targetArray.Count; i++)
+            if (startIndex < 0 || startIndex > sourceArray.Length)
+            {
+                throw new ArgumentOutOfRangeException($"Invalid start index. Must be between 0 and {sourceArray.Length - 1}. Actual {startIndex}");
+            }
+            if (startIndex + targetArray.Length > sourceArray.Length)
+            {
+                throw new ArgumentOutOfRangeException($"Insufficient space in destination array. Length is {sourceArray.Length}");
+            }
+
+            for (int i = 0; i < targetArray.Length; i++)
             {
                 sourceArray.Set(startIndex + i, targetArray.Get(i));
             }
