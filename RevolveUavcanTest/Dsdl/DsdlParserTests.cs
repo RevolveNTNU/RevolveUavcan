@@ -21,12 +21,12 @@ namespace RevolveUavcanTest.Dsdl
         }
 
         [TestMethod]
-        [DeploymentItem("413.PitotTube.1.0.uavcan", "TestFiles\\TestDsdl")]
+        [DeploymentItem("413.PitotTube.1.0.uavcan", "TestFiles/TestDsdl")]
         public void ParseValidDsdlTest()
         {
-            var source = File.ReadAllText(@"TestFiles\TestDsdl\413.PitotTube.1.0.uavcan");
+            var source = File.ReadAllText(@"TestFiles/TestDsdl/413.PitotTube.1.0.uavcan");
 
-            var result = parser.ParseSource("TestDsdl\\413.PitotTube.1.0.uavcan", source);
+            var result = parser.ParseSource("TestDsdl/413.PitotTube.1.0.uavcan", source);
             Assert.IsNotNull(result);
 
             // Verify full name
