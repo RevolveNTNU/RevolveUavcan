@@ -20,6 +20,15 @@ namespace RevolveUavcan.Tools
         /// <returns></returns>
         public static BitArray GetRange(this BitArray bitArray, int startIndex, int numberOfBits)
         {
+            if (startIndex < 0 || startIndex > bitArray.Length)
+            {
+                throw new ArgumentOutOfRangeException($"Invalid start index. Must be between 0 and {bitArray.Length - 1}. Actual {startIndex}");
+            }
+            if (startIndex + numberOfBits > bitArray.Length)
+            {
+                throw new ArgumentOutOfRangeException($"Invalid number of bits/start index combination is exceeding array length. Length is {bitArray.Length}");
+            }
+
             BitArray splitArray = new BitArray(numberOfBits);
 
             for (int i = startIndex; i < numberOfBits + startIndex; i++)

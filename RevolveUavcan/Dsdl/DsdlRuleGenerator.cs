@@ -1,6 +1,5 @@
 using RevolveUavcan.Dsdl.Fields;
 using RevolveUavcan.Dsdl.Types;
-using RevolveUavcan.Telemetry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
