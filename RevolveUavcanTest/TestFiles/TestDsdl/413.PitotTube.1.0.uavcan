@@ -1,0 +1,20 @@
+#
+# Measured temperature of the braking disk
+#
+float32 pressure_delta  # [Pa]
+
+#
+# Error bitfield for sanity checks and implausibilities
+#
+# To check for error, right shift the bitfield according to the offset
+# and bitwise and it with the ERROR_BITMASK
+# Example:
+# (error_bf >> ERROR_PRESSURE_DELTA_OFFSET) & ERROR_BITMASK; will give the status of pressure_delta
+#
+uint4 ERROR_PRESSURE_DELTA_OFFSET  = 0
+uint4 ERROR_BITMASK                = 0xF
+
+uint8 error_bf
+
+@sealed
+@assert _offset_.max <= (64 * 8)     # One CAN FD frames max

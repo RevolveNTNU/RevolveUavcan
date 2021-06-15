@@ -17,4 +17,10 @@
     <ProjectReference Include="..\RevolveUavcan\RevolveUavcan.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="TestFiles\TestDsdl\413.PitotTube.1.0.uavcan">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
