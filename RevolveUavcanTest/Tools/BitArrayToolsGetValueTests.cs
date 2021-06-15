@@ -93,8 +93,7 @@ namespace RevolveUavcanTest.Tools
 
 
         [DataTestMethod]
-        [DynamicData(nameof(GetIntInvalidData), DynamicDataSourceType.Method)]
-        [Ignore]
+        [DynamicData(nameof(GetLongInvalidData), DynamicDataSourceType.Method)]
         public void GetLongInvalidArgsTest(BitArray bitArray)
         {
             Assert.ThrowsException<ArgumentException>(() => bitArray.GetLongFromBitArray());
