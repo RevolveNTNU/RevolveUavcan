@@ -4,6 +4,9 @@ Revolve NTNU's .NET Uavcan stack
 # Goal
 See if we can alter our UAVCAN stack to not be dependent on other Revolve Analyze internals, and create a NuGet package. May go open-source if achieved.
 
+# Test coverage
+[![codecov](https://codecov.io/gh/RevolveNTNU/RevolveUavcan/branch/tribe/graph/badge.svg?token=SAaMpwbrCT)](https://codecov.io/gh/RevolveNTNU/RevolveUavcan)
+
 # TODO:
 
 - Remove all Analyze internal references
