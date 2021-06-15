@@ -26,4 +26,4 @@ jobs:
     - uses: actions/upload-artifact@v2
       with:
         name: test_report
-        path: TestResults/test-results.trx
+        path: /home/runner/work/RevolveUavcan/RevolveUavcan/RevolveUavcanTest/TestResults/test-results.trx
