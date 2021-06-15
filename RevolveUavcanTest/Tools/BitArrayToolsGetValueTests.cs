@@ -59,7 +59,7 @@ namespace RevolveUavcanTest.Tools
             yield return new object[] { new BitArray(BitConverter.GetBytes(128)), 128 };
             yield return new object[] { new BitArray(BitConverter.GetBytes(17)), 17 };
             yield return new object[] { new BitArray(BitConverter.GetBytes(17)), 17 };
-            yield return new object[] { new BitArray(BitConverter.GetBytes(12_000)), 12_001 };
+            yield return new object[] { new BitArray(BitConverter.GetBytes(12_000)), 12_000 };
         }
 
 

@@ -32,6 +32,6 @@ jobs:
       uses: dorny/test-reporter@v1.4.3
       if: ${{ always() }}
       with:
-        name: Unit Tests            # Name of the check run which will be created
+        name: Test Report            # Name of the check run which will be created
         path: /home/runner/work/RevolveUavcan/RevolveUavcan/RevolveUavcanTest/TestResults/test-results.trx    # Path to test results
         reporter: dotnet-trx        # Format of test results
