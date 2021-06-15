@@ -78,7 +78,7 @@ namespace RevolveUavcanTest.Tools
         [DataTestMethod]
         [DynamicData(nameof(GetLongValidData), DynamicDataSourceType.Method)]
         [Ignore]
-        public void GetLongValidArgsTest(BitArray bitArray, int expectedResult)
+        public void GetLongValidArgsTest(BitArray bitArray, long expectedResult)
         {
             var result = bitArray.GetLongFromBitArray();
             Assert.AreEqual(expectedResult, result);
@@ -103,6 +103,23 @@ namespace RevolveUavcanTest.Tools
         public static IEnumerable<object[]> GetLongInvalidData()
         {
             yield return new object[] { new BitArray(128) };
+        }
+
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetFloatAndDoubleValidData), DynamicDataSourceType.Method)]
+        public void GetFloatAndDoubleValidArgsTest(BitArray bitArray, double expectedResult)
+        {
+            var result = bitArray.GetFloatFromBitArray();
+            Assert.AreEqual(expectedResult, result);
+        }
+
+        public static IEnumerable<object[]> GetFloatAndDoubleValidData()
+        {
+            yield return new object[] { new BitArray(BitConverter.GetBytes(128D)), 128D };
+            yield return new object[] { new BitArray(BitConverter.GetBytes(-128D)), -128D };
+            yield return new object[] { new BitArray(BitConverter.GetBytes(-128F)), -128F };
+            yield return new object[] { new BitArray(BitConverter.GetBytes(128F)), 128F };
         }
 
     }
