@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using NLog;
+using RevolveUavcan.Telemetry;
 
 namespace RevolveUavcan.Uavcan
 {
@@ -34,7 +36,7 @@ namespace RevolveUavcan.Uavcan
         /// Subscribes FrameStorage to UavcanFrame event sent from modules UDP, PCAN, KCAN, etc...)
         /// </summary>
         /// <param name="module"></param>
-        public void RegisterOnDataEvent(ITelemetryModule module) => module.UavcanDataReceived += StoreFrame;
+        public void RegisterOnDataEvent(ITelemetryModule module) => module.UavcanFrameReceived += StoreFrame;
 
         /// <summary>
         /// Stores a frame when a UavcanFrame is received

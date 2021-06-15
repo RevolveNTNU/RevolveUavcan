@@ -11,22 +11,22 @@ using RevolveUavcan.Tools;
 
 namespace RevolveUavcan.Uavcan
 {
-    public class UavcanParser : TelemetryParser
+    public class UavcanParser
     {
-        private const uint ALIVE_ID = 7509;
+        private readonly ILogger _logger;
+        private readonly DsdlRuleGenerator _dsdlRuleGenerator;
         private List<uint> _invalidMessageIds = new List<uint>();
         private List<uint> _invalidServiceIds = new List<uint>();
 
-        private readonly ILogger _logger;
-        private readonly DsdlRuleGenerator _dsdlRuleGenerator;
+        public event EventHandler<UavcanDataPacket> UavcanMessageParsed;
+        public event EventHandler<UavcanDataPacket> UavcanServiceParsed;
 
-        public UavcanParser(ILogger logger, DsdlRuleGenerator dsdlRuleGenerator)
+        public UavcanParser(ILogger logger, DsdlRuleGenerator dsdlRuleGenerator, FrameStorage frameStorage)
         {
             _logger = logger;
             _dsdlRuleGenerator = dsdlRuleGenerator;
+            frameStorage.UavcanPacketReceived += ParseDataFrame;
         }
-
-        public void RegisterOnDataEvent(FrameStorage obj) => obj.UavcanPacketReceived += ParseDataFrame;
 
         private void ParseDataFrame(object sender, UavcanFrame frame)
         {
@@ -50,21 +50,11 @@ namespace RevolveUavcan.Uavcan
 
                 var dataDictionary = ParseUavcanFrame(frame, uavcanChannels);
 
-                // Initialize DataPacket
-                DataPacket dataPacket = new DataPacket(frame.TimeStamp, dataDictionary);
+                // Initialize packet
                 UavcanDataPacket uavcanPacket =
                     new UavcanDataPacket() { UavcanFrame = frame, ParsedDataDict = dataDictionary };
 
-                PacketParsedEventInvoker(dataPacket);
-                UavcanMessageEventInvoker(uavcanPacket);
-                if (frame.SubjectId == ALIVE_ID)
-                {
-                    AliveMessageParsedInvoker(new AlivePacket(dataPacket, frame.SourceNodeId));
-                }
-                if (messageName.Contains("Warning"))
-                {
-                    UavcanWarningReceivedInvoker(uavcanPacket);
-                }
+                UavcanMessageParsed?.Invoke(this, uavcanPacket);
             }
             else
             {
@@ -95,12 +85,8 @@ namespace RevolveUavcan.Uavcan
                 var dataDictionary = ParseUavcanFrame(frame, uavcanChannels);
 
                 // Initialize ServicePacket
-                UavcanDataPacket servicePacket =
-                    new UavcanDataPacket() { UavcanFrame = frame, ParsedDataDict = dataDictionary };
-                ServiceReceivedInvoker(servicePacket);
-
-                DataPacket dataPacket = new DataPacket(frame.TimeStamp, dataDictionary);
-                PacketParsedEventInvoker(dataPacket);
+                UavcanDataPacket servicePacket = new UavcanDataPacket() { UavcanFrame = frame, ParsedDataDict = dataDictionary };
+                UavcanServiceParsed?.Invoke(this, servicePacket);
             }
             else
             {
@@ -114,9 +100,9 @@ namespace RevolveUavcan.Uavcan
             }
         }
 
-        private Dictionary<DataChannel, double> ParseUavcanFrame(UavcanFrame frame, List<UavcanChannel> channels)
+        private Dictionary<UavcanChannel, double> ParseUavcanFrame(UavcanFrame frame, List<UavcanChannel> channels)
         {
-            Dictionary<DataChannel, double> dataDictionary = new Dictionary<DataChannel, double>();
+            Dictionary<UavcanChannel, double> dataDictionary = new Dictionary<UavcanChannel, double>();
 
             // Bit offset keeps track of how many bits of the entire sequence has been parsed
             int bitOffset = 0;
@@ -132,17 +118,7 @@ namespace RevolveUavcan.Uavcan
 
                     var prefix = frame.IsServiceNotMessage ? (frame.IsRequestNotResponse ? DsdlRuleGenerator.REQUEST_PREFIX : DsdlRuleGenerator.RESPONSE_PREFIX) : "";
 
-                    if (EventWorker.Instance.AnalyzeDataModel.DataChannels.TryGetValue(prefix + channel.FieldName,
-                        out var dataChannel))
-                    {
-                        dataDictionary.Add(dataChannel, result);
-                    }
-                    else
-                    {
-                        // If we dont have a datachannel for the data, we cannot add it to the backend.
-                        _logger
-                            .Warn($"Unable to recognise UAVCAN message with field name {channel.FieldName}");
-                    }
+                    dataDictionary.Add(channel, result);
                 }
 
                 // Increment bit offset with the size of the parsed channel
@@ -171,13 +147,9 @@ namespace RevolveUavcan.Uavcan
             return result;
         }
 
-        public UavcanFrame SerializeUavcanFrame(
-            List<UavcanChannel> uavcanChannels,
-            List<double> channelValues,
-            UavcanFrame frame)
+        public UavcanFrame SerializeUavcanFrame(List<UavcanChannel> uavcanChannels, List<double> channelValues, UavcanFrame frame)
         {
-            BitArray dataBits =
-                BitArrayTools.GetBitArrayForUavcanChannels(uavcanChannels);
+            BitArray dataBits = BitArrayTools.GetBitArrayForUavcanChannels(uavcanChannels);
 
             var listIndex = 0;
             var dataIndex = 0;
@@ -198,7 +170,7 @@ namespace RevolveUavcan.Uavcan
                         }
                     case BaseType.BOOLEAN:
                         {
-                            // To ensure no operation have been performed on the bool to change it from 1D/0D,
+                            // To ensure no operation has been performed on the bool to change it from 1D/0D,
                             // we check that it is true/false by comparing with 0.5
                             dataBits[dataIndex] = channelValues[listIndex++] > 0.5;
                             break;
@@ -224,23 +196,7 @@ namespace RevolveUavcan.Uavcan
 
             frame.Data = dataBits.GetByteArrayFromBitArray();
 
-            if (frame.IsServiceNotMessage)
-            {
-                UavcanServiceSentInvoker(frame);
-            }
-            else
-            {
-                UavcanMessageSentInvoker(frame);
-            }
             return frame;
         }
-
-
-        /// <summary>
-        /// Implemented from parent class
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="args"></param>
-        public override void OnData(object sender, DataReceivedEventArgs args) => throw new NotImplementedException();
     }
 }

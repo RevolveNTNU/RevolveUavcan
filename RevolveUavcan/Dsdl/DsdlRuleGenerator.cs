@@ -161,12 +161,14 @@ namespace RevolveUavcan.Dsdl
         /// AnalyzeDataModel.
         /// </summary>
         /// <returns></returns>
-        public Dictionary<string, DataChannel> GenerateDsdlDatachannelDict()
+        public Dictionary<string, UavcanChannel> GenerateDsdlDatachannelDict()
         {
-            var outDict = new Dictionary<string, DataChannel>();
+            var outDict = new Dictionary<string, UavcanChannel>();
 
-            foreach ((string baseName, List<UavcanChannel> value) in FlattenedDsdlMessages)
+            foreach (var keyValuePair in FlattenedDsdlMessages)
             {
+                var baseName = keyValuePair.Key;
+                var value = keyValuePair.Value;
                 foreach (var uavcanChannel in value.Where(uavcanChannel => uavcanChannel.Basetype != BaseType.VOID))
                 {
                     if (MessageDataIdMapReversed.TryGetValue(baseName, out var canId))
@@ -176,10 +178,9 @@ namespace RevolveUavcan.Dsdl
                             for (int i = 0; i < uavcanChannel.ArraySize; i++)
                             {
                                 var fullName = uavcanChannel.FieldName + "_" + i;
-                                var channel = new DataChannel(fullName) { CANID = (short)canId, Type = uavcanChannel.Basetype.ToString() };
                                 try
                                 {
-                                    outDict.Add(fullName, channel);
+                                    outDict.Add(fullName, uavcanChannel);
                                 }
                                 catch (Exception)
                                 {
@@ -190,10 +191,9 @@ namespace RevolveUavcan.Dsdl
                         else
                         {
                             var fullName = uavcanChannel.FieldName;
-                            var channel = new DataChannel(fullName) { CANID = (short)canId };
                             try
                             {
-                                outDict.Add(fullName, channel);
+                                outDict.Add(fullName, uavcanChannel);
                             }
                             catch (Exception)
                             {
@@ -204,8 +204,10 @@ namespace RevolveUavcan.Dsdl
                 }
             }
 
-            foreach ((string baseName, UavcanService value) in FlattenedServices)
+            foreach (var keyValuePair in FlattenedServices)
             {
+                var baseName = keyValuePair.Key;
+                var value = keyValuePair.Value;
                 foreach (var uavcanChannel in value.ResponseFields.Where(uavcanChannel =>
                     uavcanChannel.Basetype != BaseType.VOID))
                 {
@@ -215,11 +217,10 @@ namespace RevolveUavcan.Dsdl
                         {
                             for (int i = 0; i < uavcanChannel.ArraySize; i++)
                             {
-                                var fullName = uavcanChannel.FieldName + "_" + i;
-                                var channel = new DataChannel(fullName) { CANID = (short)canId };
+                                var fullName = RESPONSE_PREFIX + uavcanChannel.FieldName + "_" + i;
                                 try
                                 {
-                                    outDict.Add(fullName, channel);
+                                    outDict.Add(fullName, uavcanChannel);
                                 }
                                 catch (Exception)
                                 {
@@ -230,10 +231,9 @@ namespace RevolveUavcan.Dsdl
                         else
                         {
                             var fullName = RESPONSE_PREFIX + uavcanChannel.FieldName;
-                            var channel = new DataChannel(fullName) { CANID = (short)canId };
                             try
                             {
-                                outDict.Add(fullName, channel);
+                                outDict.Add(fullName, uavcanChannel);
                             }
                             catch (Exception)
                             {
@@ -254,11 +254,10 @@ namespace RevolveUavcan.Dsdl
                         {
                             for (int i = 0; i < uavcanChannel.ArraySize; i++)
                             {
-                                var fullName = uavcanChannel.FieldName + "_" + i;
-                                var channel = new DataChannel(fullName) { CANID = (short)canId };
+                                var fullName = REQUEST_PREFIX + uavcanChannel.FieldName + "_" + i;
                                 try
                                 {
-                                    outDict.Add(fullName, channel);
+                                    outDict.Add(fullName, uavcanChannel);
                                 }
                                 catch (Exception)
                                 {
@@ -269,10 +268,9 @@ namespace RevolveUavcan.Dsdl
                         else
                         {
                             var fullName = REQUEST_PREFIX + uavcanChannel.FieldName;
-                            var channel = new DataChannel(fullName) { CANID = (short)canId };
                             try
                             {
-                                outDict.Add(fullName, channel);
+                                outDict.Add(fullName, uavcanChannel);
                             }
                             catch (Exception)
                             {

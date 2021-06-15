@@ -128,7 +128,7 @@ namespace RevolveUavcan.Tools
 
             dataBits.CopyTo(bytes, 0);
 
-            return dataBits.Length == 64 ? BitConverter.ToDouble(bytes) : BitConverter.ToSingle(bytes);
+            return dataBits.Length == 64 ? BitConverter.ToDouble(bytes, 0) : BitConverter.ToSingle(bytes, 0);
         }
 
         public static byte[] GetByteArrayFromBitArray(this BitArray bitArray)

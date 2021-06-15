@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using RevolveUavcan.Tools;
+using System.Collections;
+using System.Linq;
 
 namespace RevolveUavcan.Uavcan
 {
@@ -94,7 +96,7 @@ namespace RevolveUavcan.Uavcan
 
 
             // Decode tail byte structure
-            DecodeTailByte(payload[^1]);
+            DecodeTailByte(payload.Last());
 
             // Get FrameType and evaluate whether it is completed
             Type = GetFrameType();

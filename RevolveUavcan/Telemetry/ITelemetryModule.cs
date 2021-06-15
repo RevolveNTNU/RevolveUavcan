@@ -5,16 +5,7 @@ namespace RevolveUavcan.Telemetry
 {
     public interface ITelemetryModule
     {
-        bool Write(short canId, byte[] message);
-
-        /// <summary>
-        /// Is used for writing Uavcan messages to the bus.
-        /// Is extended 29 bit identifier
-        /// </summary>
-        /// <param name="canId"></param>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        bool WriteEx(uint canId, byte[] data);
+        void Read();
 
         bool WriteUavcanFrame(UavcanFrame frame);
 
@@ -22,8 +13,6 @@ namespace RevolveUavcan.Telemetry
 
         bool IsConnected();
 
-        event EventHandler<DataReceivedEventArgs> DataReceived;
-
-        event EventHandler<UavcanFrame> UavcanDataReceived;
+        event EventHandler<UavcanFrame> UavcanFrameReceived;
     }
 }
