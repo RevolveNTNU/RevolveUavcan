@@ -27,8 +27,8 @@ jobs:
       with:
         name: test_report
         path: /home/runner/work/RevolveUavcan/RevolveUavcan/RevolveUavcanTest/TestResults/test-results.trx
-    - name: Test Report
-        uses: dorny/test-reporter@v1.4.3
+    - name: Test Reporter
+      uses: dorny/test-reporter@v1.4.3
         if: success() || failure()    # run this step even if previous step failed
         with:
           name: Unit Tests            # Name of the check run which will be created
