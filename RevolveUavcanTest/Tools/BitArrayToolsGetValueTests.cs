@@ -21,7 +21,7 @@ namespace RevolveUavcanTest.Tools
         public void GetIntValidArgsTest(BitArray bitArray, int expectedResult)
         {
             var result = bitArray.GetIntFromBitArray();
-            Assert.AreEqual(result, expectedResult);
+            Assert.AreEqual(expectedResult, result);
         }
 
         public static IEnumerable<object[]> GetIntValidData()
@@ -50,7 +50,7 @@ namespace RevolveUavcanTest.Tools
         public void GetUIntValidArgsTest(BitArray bitArray, int expectedResult)
         {
             var result = bitArray.GetIntFromBitArray();
-            Assert.AreEqual(result, expectedResult);
+            Assert.AreEqual(expectedResult, result);
         }
 
         public static IEnumerable<object[]> GetUIntValidData()
@@ -74,5 +74,36 @@ namespace RevolveUavcanTest.Tools
         {
             yield return new object[] { new BitArray(64) };
         }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetLongValidData), DynamicDataSourceType.Method)]
+        [Ignore]
+        public void GetLongValidArgsTest(BitArray bitArray, int expectedResult)
+        {
+            var result = bitArray.GetLongFromBitArray();
+            Assert.AreEqual(expectedResult, result);
+        }
+
+        public static IEnumerable<object[]> GetLongValidData()
+        {
+            yield return new object[] { BitArrayTools.GetBitArrayFromLong(-16, 64), -16 };
+            yield return new object[] { new BitArray(BitConverter.GetBytes((long)128)), 128 };
+            yield return new object[] { new BitArray(BitConverter.GetBytes((long)12_000_000)), 12_000_000 };
+        }
+
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetIntInvalidData), DynamicDataSourceType.Method)]
+        [Ignore]
+        public void GetLongInvalidArgsTest(BitArray bitArray)
+        {
+            Assert.ThrowsException<ArgumentException>(() => bitArray.GetLongFromBitArray());
+        }
+
+        public static IEnumerable<object[]> GetLongInvalidData()
+        {
+            yield return new object[] { new BitArray(128) };
+        }
+
     }
 }

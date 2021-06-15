@@ -97,7 +97,7 @@ namespace RevolveUavcan.Tools
             return array[0];
         }
 
-        public static BitArray FillBitArrayWithMSB(this BitArray bitArray, int finalSize)
+        private static BitArray FillBitArrayWithMSB(this BitArray bitArray, int finalSize)
         {
             // Get most significant bit from bitArray
             bool mostSignificantBit = bitArray.Get(bitArray.Length - 1);
