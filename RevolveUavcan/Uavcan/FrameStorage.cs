@@ -36,7 +36,7 @@ namespace RevolveUavcan.Uavcan
         /// Subscribes FrameStorage to UavcanFrame event sent from modules UDP, PCAN, KCAN, etc...)
         /// </summary>
         /// <param name="module"></param>
-        public void RegisterOnDataEvent(ITelemetryModule module) => module.UavcanFrameReceived += StoreFrame;
+        public void RegisterOnDataEvent(IUavcanCommunicationModule communicationModule) => communicationModule.UavcanFrameReceived += StoreFrame;
 
         /// <summary>
         /// Stores a frame when a UavcanFrame is received

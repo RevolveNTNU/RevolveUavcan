@@ -11,7 +11,7 @@ using RevolveUavcan.Tools;
 
 namespace RevolveUavcan.Uavcan
 {
-    public class UavcanParser
+    public class UavcanParser : IUavcanParser
     {
         private readonly ILogger _logger;
         private readonly DsdlRuleGenerator _dsdlRuleGenerator;
@@ -21,14 +21,20 @@ namespace RevolveUavcan.Uavcan
         public event EventHandler<UavcanDataPacket> UavcanMessageParsed;
         public event EventHandler<UavcanDataPacket> UavcanServiceParsed;
 
+        /// <summary>
+        /// Constructor for UAVCAN Parser. Registers the dsdl rules and subscribes to the framestorage
+        /// </summary>
+        /// <param name="logger">Logger used for log output</param>
+        /// <param name="dsdlRuleGenerator">DSDL rules to be used in parsing and serialising</param>
+        /// <param name="frameStorage">Framestorage that will provide frames to be parsed</param>
         public UavcanParser(ILogger logger, DsdlRuleGenerator dsdlRuleGenerator, FrameStorage frameStorage)
         {
             _logger = logger;
             _dsdlRuleGenerator = dsdlRuleGenerator;
-            frameStorage.UavcanPacketReceived += ParseDataFrame;
+            frameStorage.UavcanPacketReceived += ParseUavcanFrame;
         }
 
-        private void ParseDataFrame(object sender, UavcanFrame frame)
+        public void ParseUavcanFrame(object sender, UavcanFrame frame)
         {
             if (frame.IsServiceNotMessage)
             {
@@ -145,58 +151,6 @@ namespace RevolveUavcan.Uavcan
             };
 
             return result;
-        }
-
-        public UavcanFrame SerializeUavcanFrame(List<UavcanChannel> uavcanChannels, List<double> channelValues, UavcanFrame frame)
-        {
-            BitArray dataBits = BitArrayTools.GetBitArrayForUavcanChannels(uavcanChannels);
-
-            var listIndex = 0;
-            var dataIndex = 0;
-
-            foreach (UavcanChannel channel in uavcanChannels)
-            {
-                switch (channel.Basetype)
-                {
-                    case BaseType.VOID:
-                        break;
-                    case BaseType.FLOAT:
-                        {
-                            var bits = BitArrayTools.GetBitArrayFromDouble(channelValues[listIndex++], channel.Size);
-
-                            // Insert float value as bits into dataBits BitArray
-                            dataBits = dataBits.InsertRange(bits, dataIndex);
-                            break;
-                        }
-                    case BaseType.BOOLEAN:
-                        {
-                            // To ensure no operation has been performed on the bool to change it from 1D/0D,
-                            // we check that it is true/false by comparing with 0.5
-                            dataBits[dataIndex] = channelValues[listIndex++] > 0.5;
-                            break;
-                        }
-                    case BaseType.SIGNED_INT:
-                        {
-                            var bits = BitArrayTools.GetBitArrayFromLong((long)channelValues[listIndex++], channel.Size);
-
-                            dataBits = dataBits.InsertRange(bits, dataIndex);
-                            break;
-                        }
-                    case BaseType.UNSIGNED_INT:
-                        {
-                            var bits = BitArrayTools.GetBitArrayFromUInt((uint)channelValues[listIndex++], channel.Size);
-
-                            dataBits = dataBits.InsertRange(bits, dataIndex);
-                            break;
-                        }
-                }
-
-                dataIndex += channel.Size;
-            }
-
-            frame.Data = dataBits.GetByteArrayFromBitArray();
-
-            return frame;
         }
     }
 }
