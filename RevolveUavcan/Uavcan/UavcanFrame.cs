@@ -25,6 +25,23 @@ namespace RevolveUavcan.Uavcan
 
         public bool IsRequestNotResponse { get; set; }
 
+        public bool IsCompleted { get; set; }
+
+        public uint Priority { get; set; }
+
+        public bool IsStartOfTransfer { get; set; }
+        public bool IsEndOfTransfer { get; set; }
+        public bool ToggleBit { get; set; }
+        public byte TransferId { get; set; }
+
+        public long TimeStamp { get; set; }
+
+        public FrameType Type { get; }
+
+        public uint SourceNodeId { get; set; }
+
+        public uint DestinationNodeId { get; set; }
+
         #region Constants
 
         private const int MESSAGE_ID_INDEX = 8;
@@ -50,23 +67,6 @@ namespace RevolveUavcan.Uavcan
 
         #endregion
 
-        public bool IsCompleted { get; set; }
-
-        public int Priority { get; set; }
-
-        public bool IsStartOfTransfer { get; set; }
-        public bool IsEndOfTransfer { get; set; }
-        public bool ToggleBit { get; set; }
-        public byte TransferId { get; set; }
-
-        public long TimeStamp { get; set; }
-
-        public FrameType Type { get; }
-
-        public int SourceNodeId { get; set; }
-
-        public int DestinationNodeId { get; set; }
-
         public UavcanFrame()
         {
         }
@@ -87,12 +87,12 @@ namespace RevolveUavcan.Uavcan
 
             // Calculate source node ID
             SourceNodeId =
-                headerBits.GetRange(SOURCE_NODE_INDEX, MESSAGE_SOURCE_NODE_ID_LENGTH).GetIntFromBitArray();
+                headerBits.GetRange(SOURCE_NODE_INDEX, MESSAGE_SOURCE_NODE_ID_LENGTH).GetUIntFromBitArray();
 
             // Calculate destination node ID
             DestinationNodeId = !IsServiceNotMessage
-                ? -1
-                : headerBits.GetRange(DESTINATION_NODE_INDEX, MESSAGE_SOURCE_NODE_ID_LENGTH).GetIntFromBitArray();
+                ? 0
+                : headerBits.GetRange(DESTINATION_NODE_INDEX, MESSAGE_SOURCE_NODE_ID_LENGTH).GetUIntFromBitArray();
 
 
             // Decode tail byte structure
