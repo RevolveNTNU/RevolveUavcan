@@ -18,5 +18,5 @@ jobs:
       - uses: nuget/setup-nuget@v1
         with:
           nuget-version: '5.x'
-      - run: nuget restore RevolveUavcan.sln
+      - run: nuget spec
       - run: nuget pack RevolveUavcan.csprj
