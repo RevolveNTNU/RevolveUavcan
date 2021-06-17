@@ -12,7 +12,7 @@ namespace RevolveUavcan.Dsdl
 {
     public class DsdlParser
     {
-        public Dictionary<string, CompoundType> ParsedDsdlDict;
+        public Dictionary<string, CompoundType> ParsedDsdlDict = new Dictionary<string, CompoundType>();
 
         /// <summary>
         /// Where the DSDL files to parse are located, defaults to the standard
@@ -502,11 +502,13 @@ namespace RevolveUavcan.Dsdl
         private CompoundType ParseCompoundType(string fileName, string rawTypeDef)
         {
             var defFilename = LocateCompoundTypeDefinition(fileName, rawTypeDef);
+            var (fullName, _, _) = FullTypenameVersionAndDtidFromFilename(defFilename);
             CompoundType type;
-            if (!ParsedDsdlDict.TryGetValue(defFilename, out type))
+            if (!ParsedDsdlDict.TryGetValue(fullName, out type))
             {
                 var dsdlSource = ReadDsdlFile(defFilename);
                 type = ParseSource(defFilename, dsdlSource);
+                ParsedDsdlDict.Add(type.FullName, type);
             }
 
             if (type.messageType == MessageType.MESSAGE)
