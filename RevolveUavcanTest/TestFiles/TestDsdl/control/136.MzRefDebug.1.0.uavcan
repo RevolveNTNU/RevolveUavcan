@@ -1,0 +1,11 @@
+#
+# Force setpoints, output from the force allocation alg.
+#
+
+TestDsdl.control.PIDControl.1.0 closed_loop_pid       # [-]
+float32                closed_loop_yaw_ref   # [rad/s]
+
+TestDsdl.control.PIDControl.1.0 open_loop_pid         # [-]
+
+@sealed
+@assert _offset_.max <= (64 * 8)        # Max 1 CANFD frame

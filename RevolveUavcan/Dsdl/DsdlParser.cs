@@ -638,10 +638,7 @@ namespace RevolveUavcan.Dsdl
 
         private string LocateNamespaceDirectory(string nameSpace, string refFilename)
         {
-            var components = nameSpace.Split('.');
-            var root = components[0];
-            var subComponents = components.Skip(1).ToArray();
-            var nameSpaceFolder = nameSpace.Replace('.', '\\');
+            var nameSpaceFolder = nameSpace.Replace('.', Path.DirectorySeparatorChar);
 
             var rootdirectory = Path.GetFullPath(DsdlPath);
             if (DsdlPath == nameSpaceFolder)
@@ -649,17 +646,18 @@ namespace RevolveUavcan.Dsdl
                 return rootdirectory;
             }
 
+            var fullPath = Path.Combine(rootdirectory, nameSpaceFolder);
+
             foreach (var dir in Directory.GetDirectories(DsdlPath, "*", SearchOption.AllDirectories))
             {
                 var directory = Path.GetFullPath(dir);
-                var fullPath = rootdirectory + "\\" + nameSpaceFolder;
                 if (directory == fullPath)
                 {
                     return directory;
                 }
             }
 
-            throw new DsdlException("Unknown namespace for " + refFilename);
+            throw new DsdlException($"Unknown namespace ({nameSpace}) for " + refFilename);
         }
 
         private ExpandoObject EvaluateExpression(string expression, BaseType baseType)

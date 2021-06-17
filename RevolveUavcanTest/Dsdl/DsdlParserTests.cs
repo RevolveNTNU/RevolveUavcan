@@ -22,7 +22,7 @@ namespace RevolveUavcanTest.Dsdl
 
         [TestMethod]
         [DeploymentItem("413.PitotTube.1.0.uavcan", "TestFiles/TestDsdl")]
-        public void ParseValidDsdlTest()
+        public void ParseValidDsdlMessageTest()
         {
             var source = File.ReadAllText(@"TestFiles/TestDsdl/413.PitotTube.1.0.uavcan");
 
@@ -55,15 +55,58 @@ namespace RevolveUavcanTest.Dsdl
         }
 
         [TestMethod]
+        [DeploymentItem("35.RTDS.1.0.uavcan", "TestFiles/TestDsdl/dashboard")]
+        public void ParseValidDsdlServiceTest()
+        {
+            var source = File.ReadAllText(@"TestFiles/TestDsdl/dashboard/35.RTDS.1.0.uavcan");
+
+            var result = parser.ParseSource(@"TestFiles/TestDsdl/dashboard/35.RTDS.1.0.uavcan", source);
+            Assert.IsNotNull(result);
+
+            // Verify full name
+            Assert.AreEqual("TestDsdl.dashboard.RTDS", result.FullName);
+
+            // Verify fields and constants
+            Assert.AreEqual(1, result.requestFields.Count);
+            Assert.AreEqual(1, result.responseFields.Count);
+            Assert.AreEqual(2, result.requestConstants.Count);
+            Assert.AreEqual(0, result.responseConstants.Count);
+
+            Assert.AreEqual("command", result.requestFields[0].name);
+            Assert.AreEqual("success", result.responseFields[0].name);
+
+            Assert.AreEqual("PLAY", result.requestConstants[0].name);
+            Assert.AreEqual("0", result.requestConstants[0].StringValue);
+            Assert.AreEqual("FINISHED", result.requestConstants[1].name);
+            Assert.AreEqual("1", result.requestConstants[1].StringValue);
+
+            var command = result.requestFields[0];
+
+            Assert.AreEqual("saturated uint", command.type.FullName);
+            Assert.AreEqual(Category.PRIMITIVE, command.type.Category);
+            Assert.AreEqual(false, command.isConstant);
+            Assert.AreEqual(8, command.type.GetMaxBitLength());
+
+            var success = result.responseFields[0];
+
+            Assert.AreEqual("saturated uint", success.type.FullName);
+            Assert.AreEqual(Category.PRIMITIVE, success.type.Category);
+            Assert.AreEqual(false, success.isConstant);
+            Assert.AreEqual(8, success.type.GetMaxBitLength());
+        }
+
+        [TestMethod]
         [DeploymentItem("413.PitotTube.1.0.uavcan", "TestFiles/TestDsdl")]
         [DeploymentItem("35.RTDS.1.0.uavcan", "TestFiles/TestDsdl/dashboard")]
+        [DeploymentItem("136.MzRefDebug.1.0.uavcan", "TestFiles/TestDsdl/control")]
+        [DeploymentItem("PIDControl.1.0.uavcan", "TestFiles/TestDsdl/control")]
         public void ParseFullNamespaceTest()
         {
             var parsedDsdl = parser.ParseAllDirectories();
 
-            Assert.AreEqual(2, parsedDsdl.Count);
+            Assert.AreEqual(4, parsedDsdl.Count);
 
-            List<string> dsdlNames = new List<string> { "TestDsdl.PitotTube", "TestDsdl.dashboard.RTDS" };
+            List<string> dsdlNames = new List<string> { "TestDsdl.PitotTube", "TestDsdl.dashboard.RTDS", "TestDsdl.control.MzRefDebug", "TestDsdl.control.PIDControl" };
             foreach (var keyValPair in parsedDsdl)
             {
                 Assert.IsTrue(dsdlNames.Contains(keyValPair.Key));

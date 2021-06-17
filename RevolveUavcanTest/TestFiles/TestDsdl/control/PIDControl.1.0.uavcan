@@ -1,0 +1,12 @@
+# 
+# TV uses several PID controllers
+# This message is to debug the contribution
+# of each term
+#
+
+float32 p_term
+float32 i_term
+float32 d_term
+
+@sealed
+@assert _offset_.max <= (64 * 8)     # One CAN FD frames max
