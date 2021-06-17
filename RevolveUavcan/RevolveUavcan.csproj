@@ -7,8 +7,9 @@
     <Version>0.0.1</Version>
     <Authors>Revolve NTNU</Authors>
     <Product>RevolveUavcanSharp</Product>
-    <Description>A C# implementation of UAVCAN.</Description>
+    <Description>A C# implementation of UAVCAN, including a runtime dsdl interpreter.</Description>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <Copyright />
   </PropertyGroup>
 
   <ItemGroup>
