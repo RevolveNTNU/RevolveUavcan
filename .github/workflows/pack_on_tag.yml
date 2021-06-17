@@ -9,6 +9,14 @@ jobs:
     name: build package
     runs-on: ubuntu-latest
     steps:
+
+      - name: Set env
+        run: |
+          # remove the `refs/tags/v`
+          $Release_Version = "${{ github.ref }}".substring(11)
+          # Ensure file is written in UTF8
+          echo "RELEASE_VERSION=$Release_Version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
       - uses: actions/checkout@v2
 
       - name: Setup dotnet
@@ -24,7 +32,7 @@ jobs:
         with:
           nuget-version: '5.x'
       - run: nuget spec
-      - run: nuget pack RevolveUavcan/RevolveUavcan.csproj -Version "${{ github.ref }}".substring(11)
+      - run: nuget pack RevolveUavcan/RevolveUavcan.csproj -Version $env:RELEASE_VERSION
 
       - uses: actions/upload-artifact@v2
         with:
