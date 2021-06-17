@@ -22,7 +22,7 @@ namespace RevolveUavcan.Dsdl
         public Dictionary<uint, string> ServiceDataIdMap { get; private set; }
         public Dictionary<string, uint> ServiceDataIdMapReversed { get; set; }
 
-        public Dictionary<string, int> NodeNameToNodeId { get; set; }
+        public Dictionary<string, uint> NodeNameToNodeId { get; set; }
 
         public DsdlParser Parser { get; }
 
@@ -72,13 +72,13 @@ namespace RevolveUavcan.Dsdl
 
             if (hasNodeIds)
             {
-                NodeNameToNodeId = new Dictionary<string, int>();
+                NodeNameToNodeId = new Dictionary<string, uint>();
 
                 foreach (var constant in nodeIds.requestConstants)
                 {
                     try
                     {
-                        NodeNameToNodeId.Add(constant.name, int.Parse(constant.StringValue));
+                        NodeNameToNodeId.Add(constant.name, uint.Parse(constant.StringValue));
                     }
                     catch (ArgumentNullException)
                     {
@@ -120,7 +120,7 @@ namespace RevolveUavcan.Dsdl
         /// Maps all the DSDL-files with their respective DataTypeID,
         /// one for messages and one for services.
         /// </summary>
-        public void GenerateDataIdMap()
+        private void GenerateDataIdMap()
         {
             foreach (var key in ParsedDsdl.Keys)
             {
@@ -288,7 +288,7 @@ namespace RevolveUavcan.Dsdl
         /// basetype (bool, uint, int or float), their size and channel name (eg. value, x, roll, acceleration, etc).
         /// </summary>
         /// <returns></returns>
-        public void FlattenDictionary()
+        private void FlattenDictionary()
         {
             foreach (var key in ParsedDsdl.Keys.Where(key => ParsedDsdl[key].defaultDataTypeID != 0))
             {
