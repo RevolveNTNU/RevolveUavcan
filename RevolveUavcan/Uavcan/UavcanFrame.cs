@@ -76,7 +76,8 @@ namespace RevolveUavcan.Uavcan
             // Initialize properties
             IsServiceNotMessage = headerBits.Get(IS_SERVICE_NOT_MESSAGE_INDEX);
             TimeStamp = timeStamp;
-            IsRequestNotResponse = headerBits.Get(IS_REQUEST_NOT_RESPONSE_INDEX);
+            IsRequestNotResponse = IsServiceNotMessage ? headerBits.Get(IS_REQUEST_NOT_RESPONSE_INDEX) : true;
+
             // Get subject ID bits from initial header bits
             BitArray subjectIdBits = IsServiceNotMessage
                 ? headerBits.GetRange(SERVICE_ID_INDEX, SERVICE_ID_LENGTH)
