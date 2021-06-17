@@ -47,7 +47,7 @@ namespace RevolveUavcan.Dsdl
                 {
                     var dsdlSource = ReadDsdlFile(file);
                     CompoundType type = ParseSource(file, dsdlSource);
-                    ParsedDsdlDict.Add(type.fullName, type);
+                    ParsedDsdlDict.Add(type.FullName, type);
                 }
             }
 
@@ -60,7 +60,7 @@ namespace RevolveUavcan.Dsdl
         /// </summary>
         /// <param name="filename"></param>
         /// <returns></returns>
-        public string ReadDsdlFile(string filename)
+        private string ReadDsdlFile(string filename)
         {
             string sourceText;
             try
@@ -92,7 +92,7 @@ namespace RevolveUavcan.Dsdl
         /// </summary>
         /// <param name="text"></param>
         /// <returns></returns>
-        public List<List<string>> Tokenize(string text)
+        private List<List<string>> Tokenize(string text)
         {
             List<List<string>> lines = new List<List<string>>();
             Regex r = new Regex(@"#.*");
@@ -338,7 +338,7 @@ namespace RevolveUavcan.Dsdl
             return false;
         }
 
-        public Attribute ParseLine(string filename, List<string> tokens, int lineNumber)
+        private Attribute ParseLine(string filename, List<string> tokens, int lineNumber)
         {
             CastMode cm = CastMode.SATURATED;
             if (tokens[0] == "saturated" || tokens[0] == "truncated")
@@ -388,7 +388,7 @@ namespace RevolveUavcan.Dsdl
         }
 
 
-        public Constant MakeConstant(DsdlType attrType, string name, string expression)
+        private Constant MakeConstant(DsdlType attrType, string name, string expression)
         {
             if (attrType.Category != Category.PRIMITIVE)
             {
@@ -662,7 +662,7 @@ namespace RevolveUavcan.Dsdl
             throw new DsdlException("Unknown namespace for " + refFilename);
         }
 
-        public ExpandoObject EvaluateExpression(string expression, BaseType baseType)
+        private ExpandoObject EvaluateExpression(string expression, BaseType baseType)
         {
             dynamic returnValue = new ExpandoObject();
 

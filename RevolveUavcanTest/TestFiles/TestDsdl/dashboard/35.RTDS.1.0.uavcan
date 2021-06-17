@@ -1,0 +1,43 @@
+#
+# Control sequence to play RTDS before enabling drive mode of vehicle. An request to either
+# enable or disable drive mode is sent to the VCU, which must verify that the
+# criterias are fulfilled before doing further actions.
+#
+
+#
+# Value zero are intentionally left out, such as an
+# empty message never will have any effect on RTDS
+#
+
+#
+# Request Play RTDS. 
+#
+uint8 PLAY = 0
+
+#
+# Command to inform VCU that RTDS is finished
+#
+uint8 FINISHED = 1
+
+
+#
+# Upon receiving this request, the dashboard must either play the RTDS if 
+# the conditions for that is fulfilled, and the VCU should enable drive mode if all other 
+# conditions also are fulfilled.
+uint8 command
+
+@sealed
+@assert _offset_.max <= (64 * 8)     # One CAN FD frames max
+
+---
+
+# 
+# Respond with 1 if request was granted, 0 if not.
+# Note: Upon receiving a request to play RTDS, the response should be sent
+# when RTDS is started, NOT finished, to signal the VCU that RTDS is either started
+# or finished. When RTDS is finished, a new request should be sent from dashboard to 
+# the VCU informing that RTDS is finished. 
+uint8 success
+
+@sealed
+@assert _offset_.max <= (64 * 8)     # One CAN FD frames max

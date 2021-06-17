@@ -51,7 +51,7 @@ namespace RevolveUavcan.Dsdl
                 FlattenDictionary();
                 GenerateListOfNodes();
             }
-            catch (DsdlException e)
+            catch (DsdlException)
             {
                 // Toast.Error($"DSDL ERROR: {e}", true);
                 return false;
@@ -80,19 +80,19 @@ namespace RevolveUavcan.Dsdl
                     {
                         NodeNameToNodeId.Add(constant.name, int.Parse(constant.StringValue));
                     }
-                    catch (ArgumentNullException e)
+                    catch (ArgumentNullException)
                     {
                         _logger.Warn("Constant's string value cannot be null.");
                     }
-                    catch (ArgumentException e)
+                    catch (ArgumentException)
                     {
                         _logger.Warn("Not a NumberStyles value.");
                     }
-                    catch (FormatException e)
+                    catch (FormatException)
                     {
                         _logger.Warn("Constant's string value is not format compliant.");
                     }
-                    catch (OverflowException e)
+                    catch (OverflowException)
                     {
                         _logger
                             .Warn("Constant's string value is either less thna MinValue or greater than MaxValue.");
@@ -176,27 +176,27 @@ namespace RevolveUavcan.Dsdl
                         {
                             for (int i = 0; i < uavcanChannel.ArraySize; i++)
                             {
-                                var fullName = uavcanChannel.FieldName + "_" + i;
+                                var FullName = uavcanChannel.FieldName + "_" + i;
                                 try
                                 {
-                                    outDict.Add(fullName, uavcanChannel);
+                                    outDict.Add(FullName, uavcanChannel);
                                 }
                                 catch (Exception)
                                 {
-                                    throw new DsdlException("Two or more messages use the same name: " + fullName);
+                                    throw new DsdlException("Two or more messages use the same name: " + FullName);
                                 }
                             }
                         }
                         else
                         {
-                            var fullName = uavcanChannel.FieldName;
+                            var FullName = uavcanChannel.FieldName;
                             try
                             {
-                                outDict.Add(fullName, uavcanChannel);
+                                outDict.Add(FullName, uavcanChannel);
                             }
                             catch (Exception)
                             {
-                                throw new DsdlException("Two or more messages use the same name: " + fullName);
+                                throw new DsdlException("Two or more messages use the same name: " + FullName);
                             }
                         }
                     }
@@ -216,27 +216,27 @@ namespace RevolveUavcan.Dsdl
                         {
                             for (int i = 0; i < uavcanChannel.ArraySize; i++)
                             {
-                                var fullName = RESPONSE_PREFIX + uavcanChannel.FieldName + "_" + i;
+                                var FullName = RESPONSE_PREFIX + uavcanChannel.FieldName + "_" + i;
                                 try
                                 {
-                                    outDict.Add(fullName, uavcanChannel);
+                                    outDict.Add(FullName, uavcanChannel);
                                 }
                                 catch (Exception)
                                 {
-                                    throw new DsdlException("Two or more messages use the same name: " + fullName);
+                                    throw new DsdlException("Two or more messages use the same name: " + FullName);
                                 }
                             }
                         }
                         else
                         {
-                            var fullName = RESPONSE_PREFIX + uavcanChannel.FieldName;
+                            var FullName = RESPONSE_PREFIX + uavcanChannel.FieldName;
                             try
                             {
-                                outDict.Add(fullName, uavcanChannel);
+                                outDict.Add(FullName, uavcanChannel);
                             }
                             catch (Exception)
                             {
-                                throw new DsdlException("Two or more messages use the same name: " + fullName);
+                                throw new DsdlException("Two or more messages use the same name: " + FullName);
                             }
                         }
                     }
@@ -253,27 +253,27 @@ namespace RevolveUavcan.Dsdl
                         {
                             for (int i = 0; i < uavcanChannel.ArraySize; i++)
                             {
-                                var fullName = REQUEST_PREFIX + uavcanChannel.FieldName + "_" + i;
+                                var FullName = REQUEST_PREFIX + uavcanChannel.FieldName + "_" + i;
                                 try
                                 {
-                                    outDict.Add(fullName, uavcanChannel);
+                                    outDict.Add(FullName, uavcanChannel);
                                 }
                                 catch (Exception)
                                 {
-                                    throw new DsdlException("Two or more messages use the same name: " + fullName);
+                                    throw new DsdlException("Two or more messages use the same name: " + FullName);
                                 }
                             }
                         }
                         else
                         {
-                            var fullName = REQUEST_PREFIX + uavcanChannel.FieldName;
+                            var FullName = REQUEST_PREFIX + uavcanChannel.FieldName;
                             try
                             {
-                                outDict.Add(fullName, uavcanChannel);
+                                outDict.Add(FullName, uavcanChannel);
                             }
                             catch (Exception)
                             {
-                                throw new DsdlException("Two or more messages use the same name: " + fullName);
+                                throw new DsdlException("Two or more messages use the same name: " + FullName);
                             }
                         }
                     }
@@ -302,7 +302,7 @@ namespace RevolveUavcan.Dsdl
                     var resFields = FlattenFieldList(ParsedDsdl[key].responseFields, key);
                     FlattenedServices.Add(key,
                         new UavcanService(reqFields, resFields, ParsedDsdl[key].defaultDataTypeID,
-                            ParsedDsdl[key].fullName));
+                            ParsedDsdl[key].FullName));
                 }
             }
         }
@@ -366,11 +366,11 @@ namespace RevolveUavcan.Dsdl
                     {
                         if (arrayType.dataType is CompoundType compoundType)
                         {
-                            var flattened = FlattenFieldList(compoundType?.responseFields, compoundType.fullName);
+                            var flattened = FlattenFieldList(compoundType?.responseFields, compoundType.FullName);
                             for (int i = 0; i < arrayType.maxSize; i++)
                             {
                                 outList.AddRange(flattened.Select(channel => new UavcanChannel(channel.Basetype,
-                                    channel.Size, compoundType.fullName + channel.FieldName + "." + i)));
+                                    channel.Size, compoundType.FullName + channel.FieldName + "." + i)));
                             }
                         }
                     }

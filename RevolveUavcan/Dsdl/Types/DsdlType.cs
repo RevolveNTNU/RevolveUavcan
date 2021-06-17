@@ -22,15 +22,15 @@ namespace RevolveUavcan.Dsdl.Types
     /// </summary>
     public abstract class DsdlType
     {
-        public string fullName;
+        public string FullName { get; }
 
 
-        public Category Category { get; set; }
+        public Category Category { get; }
 
         protected DsdlType(string fullName, Category category)
         {
-            this.fullName = fullName;
-            this.Category = category;
+            FullName = fullName;
+            Category = category;
         }
 
         public abstract override string ToString();

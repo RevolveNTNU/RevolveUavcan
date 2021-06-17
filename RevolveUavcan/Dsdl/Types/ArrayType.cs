@@ -44,7 +44,7 @@ namespace RevolveUavcan.Dsdl.Types
 
         public static string GetNormalizedDefinition(DsdlType dataType, ArrayMode mode, int maxSize)
         {
-            var baseString = dataType.fullName.ToString();
+            var baseString = dataType.FullName.ToString();
             var arrayString = mode == ArrayMode.STATIC
                             ? $"[{maxSize}]"
                             : $"[<={maxSize}]";
