@@ -1,11 +1,11 @@
-name: publish to nuget
+name: Build NuGet package
 on:
   push:
     branches: [ tribe ]
 
 jobs:
   publish:
-    name: build, pack & publish
+    name: build package
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -19,4 +19,4 @@ jobs:
         with:
           nuget-version: '5.x'
       - run: nuget spec
-      - run: nuget pack RevolveUavcan.csproj
+      - run: nuget pack RevolveUavcan/RevolveUavcan.csproj
