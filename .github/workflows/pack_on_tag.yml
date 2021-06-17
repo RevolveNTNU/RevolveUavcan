@@ -19,4 +19,4 @@ jobs:
         with:
           nuget-version: '5.x'
       - run: nuget spec
-      - run: nuget pack RevolveUavcan.csprj
+      - run: nuget pack RevolveUavcan.csproj
