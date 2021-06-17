@@ -1,7 +1,8 @@
 name: Build NuGet package
 on:
   push:
-    branches: [ tribe ]
+    tags:
+      - "v*.*.*.*"
 
 jobs:
   publish:
@@ -18,9 +19,9 @@ jobs:
         run: dotnet restore
       - name: Build
         run: dotnet build --no-restore
-        
+
       - uses: nuget/setup-nuget@v1
         with:
           nuget-version: '5.x'
       - run: nuget spec
-      - run: nuget pack RevolveUavcan/RevolveUavcan.csproj
+      - run: nuget pack RevolveUavcan/RevolveUavcan.csproj -Version "${{ github.ref }}".substring(11)
