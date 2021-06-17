@@ -28,5 +28,5 @@ jobs:
 
       - uses: actions/upload-artifact@v2
         with:
-          name: test_report
+          name: nuget_package
           path: /home/runner/work/RevolveUavcan/RevolveUavcan/*.nupkg
