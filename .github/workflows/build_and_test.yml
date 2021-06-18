@@ -22,7 +22,16 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
     - name: Test
-      run: dotnet test --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx" /p:CollectCoverage=true
+      run: dotnet test --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx"
+    - name : coverlet
+      uses: b3b00/coverlet-action@1.1.0
+      with:
+        testProject: 'RevolveUavcanTests/RevolveUavcanTests.csproj'
+        output: 'lcov.info'
+        outputFormat: 'lcov'
+        excludes: '[program]*,[test]test.*'
+
+
     - uses: actions/upload-artifact@v2
       if: ${{ always() }}
       with:
@@ -32,7 +41,7 @@ jobs:
       if: ${{ always() }}
       with:
         name: coverage_report
-        path: /home/runner/work/RevolveUavcan/RevolveUavcan/RevolveUavcanTest/coverage.json
+        path: ${{steps.coverlet.outputs.coverageFile}}
     - name: Test Reporter
       uses: dorny/test-reporter@v1.4.3
       if: ${{ always() }}
@@ -40,8 +49,3 @@ jobs:
         name: Test Report            # Name of the check run which will be created
         path: /home/runner/work/RevolveUavcan/RevolveUavcan/RevolveUavcanTest/TestResults/test-results.trx    # Path to test results
         reporter: dotnet-trx        # Format of test results
-    - uses: codecov/codecov-action@v1
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        files: /home/runner/work/RevolveUavcan/RevolveUavcan/RevolveUavcanTest/coverage.json
-        name: RevolveUavcanCoverage # optional
