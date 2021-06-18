@@ -10,4 +10,4 @@ There are currently some limitations present in this implementation, some by cho
 - Multiframe reading does not work perfectly, suspect some threading issues
 
 # Test coverage
-[![codecov](https://codecov.io/gh/RevolveNTNU/RevolveUavcan/branch/tribe/graph/badge.svg?token=SAaMpwbrCT)](https://codecov.io/gh/RevolveNTNU/RevolveUavcan)
+[![Coverage Status](https://coveralls.io/repos/github/RevolveNTNU/RevolveUavcan/badge.svg?branch=tribe)](https://coveralls.io/github/RevolveNTNU/RevolveUavcan?branch=tribe)
