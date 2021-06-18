@@ -31,7 +31,6 @@ jobs:
         outputFormat: 'lcov'
         excludes: '[program]*,[test]test.*'
 
-
     - uses: actions/upload-artifact@v2
       if: ${{ always() }}
       with:
@@ -41,7 +40,11 @@ jobs:
       if: ${{ always() }}
       with:
         name: coverage_report
-        path: ${{steps.coverlet.outputs.coverageFile}}
+        path: /home/runner/work/RevolveUavcan/RevolveUavcan/RevolveUavcanTest/lcov.info
+    - uses: coverallsapp/github-action@v1.1.1
+      with:
+        github-token: ${{secrets.GITHUB_TOKEN }} 
+        path-to-lcov: /home/runner/work/RevolveUavcan/RevolveUavcan/RevolveUavcanTest/lcov.info
     - name: Test Reporter
       uses: dorny/test-reporter@v1.4.3
       if: ${{ always() }}
