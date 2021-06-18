@@ -1,18 +1,13 @@
 # RevolveUavcan
-Revolve NTNU's .NET Uavcan stack
+Revolve NTNU's .NET Uavcan stack, used in our Telemetry and Analysis software Revolve Analyze. Includes a runtime dsdl interpeter and dynamic uavcan (de)serialization. 
 
-# Goal
-See if we can alter our UAVCAN stack to not be dependent on other Revolve Analyze internals, and create a NuGet package. May go open-source if achieved.
+# Limitations
+There are currently some limitations present in this implementation, some by choice, some not. These might get fixed as time passes.
+
+- Does not consider @ commands in the DSDL
+- Does not support serialization of Multiframe messages
+- Does only support CAN-FD message sizes, meaning that 64 is the max message size.
+- Multiframe reading does not work perfectly, suspect some threading issues
 
 # Test coverage
 [![codecov](https://codecov.io/gh/RevolveNTNU/RevolveUavcan/branch/tribe/graph/badge.svg?token=SAaMpwbrCT)](https://codecov.io/gh/RevolveNTNU/RevolveUavcan)
-
-# TODO:
-
-- Remove all Analyze internal references
-- Find a reasonable output format for the parser
-- Create a "main" function that can link parsers and framestorage etc.
-- Define a minimalistic public API for the uavcan parser
-- TESTING
-- Write tests
-- Setup CI (with henrik I hope)
