@@ -10,6 +10,7 @@
     <Description>A C# implementation of UAVCAN, including a runtime dsdl interpreter.</Description>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Copyright />
+    <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
