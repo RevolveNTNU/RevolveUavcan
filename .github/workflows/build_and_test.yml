@@ -26,7 +26,7 @@ jobs:
     - name : coverlet
       uses: b3b00/coverlet-action@1.1.0
       with:
-        testProject: 'RevolveUavcanTests/RevolveUavcanTests.csproj'
+        testProject: 'RevolveUavcanTest/RevolveUavcanTest.csproj'
         output: 'lcov.info'
         outputFormat: 'lcov'
         excludes: '[program]*,[test]test.*'
