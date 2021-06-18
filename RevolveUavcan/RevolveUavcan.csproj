@@ -16,7 +16,6 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="NLog" Version="4.7.10" />
-    <PackageReference Include="OpenCover" Version="4.7.1204" />
   </ItemGroup>
 
 </Project>
