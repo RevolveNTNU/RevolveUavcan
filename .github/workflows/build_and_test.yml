@@ -31,7 +31,7 @@ jobs:
     - uses: actions/upload-artifact@v2
       if: ${{ always() }}
       with:
-        name: test_report
+        name: coverage_report
         path: /home/runner/work/RevolveUavcan/RevolveUavcan/RevolveUavcanTest/coverage.json
     - name: Test Reporter
       uses: dorny/test-reporter@v1.4.3
@@ -45,4 +45,3 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: /home/runner/work/RevolveUavcan/RevolveUavcan/RevolveUavcanTest/coverage.json
         name: RevolveUavcanCoverage # optional
-        verbose: true
