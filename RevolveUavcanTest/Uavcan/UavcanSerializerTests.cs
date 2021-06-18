@@ -14,8 +14,7 @@ namespace RevolveUavcanTest.Uavcan
         {
             var serializedFrame = UavcanSerializer.SerializeUavcanData(uavcanChannels, channelValues, frame);
 
-            Assert.AreEqual(serializedFrame.Data, expectedData);
-
+            CollectionAssert.AreEqual(serializedFrame.Data, expectedData);
         }
 
         public static IEnumerable<object[]> GetUavcanChannelsAndValues()
@@ -29,7 +28,7 @@ namespace RevolveUavcanTest.Uavcan
                     new UavcanChannel(RevolveUavcan.Dsdl.Types.BaseType.SIGNED_INT, 8, "error_bf")
                 },
                 new List<double> { 128.64, 1 },
-                new byte[] { 215, 163, 0, 67, 0 }
+                new byte[] { 215, 163, 0, 67, 1 }
             };
         }
     }
