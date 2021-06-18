@@ -17,7 +17,7 @@ namespace RevolveUavcan.Uavcan
         /// <param name="channelValues"></param>
         /// <param name="frame"></param>
         /// <returns></returns>
-        public UavcanFrame SerializeUavcanFrame(List<UavcanChannel> uavcanChannels, List<double> channelValues, UavcanFrame frame)
+        public static UavcanFrame SerializeUavcanData(List<UavcanChannel> uavcanChannels, List<double> channelValues, UavcanFrame frame)
         {
             BitArray dataBits = BitArrayTools.GetBitArrayForUavcanChannels(uavcanChannels);
 
