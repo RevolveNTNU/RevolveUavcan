@@ -12,33 +12,21 @@ namespace RevolveUavcan.Dsdl
         public static string REQUEST_PREFIX = "request_";
         public static string RESPONSE_PREFIX = "response_";
 
-        public Dictionary<string, CompoundType> ParsedDsdl { get; private set; }
+        private Dictionary<string, CompoundType> _parsedDsdl;
 
-        public Dictionary<string, List<UavcanChannel>> FlattenedDsdlMessages { get; private set; }
-        public Dictionary<string, UavcanService> FlattenedServices { get; private set; }
-
-        public Dictionary<uint, string> MessageDataIdMap { get; private set; }
-        public Dictionary<string, uint> MessageDataIdMapReversed { get; set; }
-        public Dictionary<uint, string> ServiceDataIdMap { get; private set; }
-        public Dictionary<string, uint> ServiceDataIdMapReversed { get; set; }
-
-        public Dictionary<string, uint> NodeNameToNodeId { get; set; }
-
-        public DsdlParser Parser { get; }
+        private Dictionary<Tuple<uint, string>, List<UavcanChannel>> _flattenedDsdlMessages;
+        private Dictionary<Tuple<uint, string>, UavcanService> _flattenedServices;
+        private DsdlParser _parser { get; }
 
         private readonly ILogger _logger;
 
         public DsdlRuleGenerator(string dsdlPath, ILogger logger)
         {
-            Parser = new DsdlParser(dsdlPath);
+            _parser = new DsdlParser(dsdlPath);
             _logger = logger;
 
-            FlattenedDsdlMessages = new Dictionary<string, List<UavcanChannel>>();
-            FlattenedServices = new Dictionary<string, UavcanService>();
-            MessageDataIdMap = new Dictionary<uint, string>();
-            MessageDataIdMapReversed = new Dictionary<string, uint>();
-            ServiceDataIdMapReversed = new Dictionary<string, uint>();
-            ServiceDataIdMap = new Dictionary<uint, string>();
+            _flattenedDsdlMessages = new Dictionary<Tuple<uint, string>, List<UavcanChannel>>();
+            _flattenedServices = new Dictionary<Tuple<uint, string>, UavcanService>();
         }
 
 
@@ -46,241 +34,63 @@ namespace RevolveUavcan.Dsdl
         {
             try
             {
-                ParsedDsdl = Parser.ParseAllDirectories();
-                GenerateDataIdMap();
+                _parsedDsdl = _parser.ParseAllDirectories();
                 FlattenDictionary();
-                GenerateListOfNodes();
             }
             catch (DsdlException)
             {
-                // Toast.Error($"DSDL ERROR: {e}", true);
                 return false;
             }
 
             return true;
         }
 
-        /// <summary>
-        /// Generates a list of nodes to send Uavcan service from
-        /// </summary>
-        /// <returns></returns>
-        private void GenerateListOfNodes()
+        public bool GetSerializationRuleForMessage(uint subjectId, out List<UavcanChannel> uavcanChannels)
         {
-            // Gets all nodes defined in a DSDL file
-            var hasNodeIds = ParsedDsdl.TryGetValue("common.Systems",
-                out var nodeIds);
-
-            if (hasNodeIds)
+            var key = _flattenedDsdlMessages.Keys.FirstOrDefault(x => x.Item1 == subjectId);
+            if (key.Item1 == subjectId)
             {
-                NodeNameToNodeId = new Dictionary<string, uint>();
-
-                foreach (var constant in nodeIds.requestConstants)
-                {
-                    try
-                    {
-                        NodeNameToNodeId.Add(constant.name, uint.Parse(constant.StringValue));
-                    }
-                    catch (ArgumentNullException)
-                    {
-                        _logger.Warn("Constant's string value cannot be null.");
-                    }
-                    catch (ArgumentException)
-                    {
-                        _logger.Warn("Not a NumberStyles value.");
-                    }
-                    catch (FormatException)
-                    {
-                        _logger.Warn("Constant's string value is not format compliant.");
-                    }
-                    catch (OverflowException)
-                    {
-                        _logger
-                            .Warn("Constant's string value is either less thna MinValue or greater than MaxValue.");
-                    }
-                }
+                uavcanChannels = _flattenedDsdlMessages[key];
+                return true;
             }
-            else
-            {
-                throw new DsdlException("No node IDs found.");
-            }
+            uavcanChannels = new List<UavcanChannel>();
+            return false;
         }
 
-        public bool ReInitDsdlRules()
+        public bool GetSerializationRuleForMessage(string messageName, out List<UavcanChannel> uavcanChannels)
         {
-            FlattenedDsdlMessages = new Dictionary<string, List<UavcanChannel>>();
-            FlattenedServices = new Dictionary<string, UavcanService>();
-            MessageDataIdMap = new Dictionary<uint, string>();
-            MessageDataIdMapReversed = new Dictionary<string, uint>();
-            ServiceDataIdMapReversed = new Dictionary<string, uint>();
-            ServiceDataIdMap = new Dictionary<uint, string>();
-            return InitDsdlRules();
+            var key = _flattenedDsdlMessages.Keys.FirstOrDefault(x => x.Item2 == messageName);
+            if (key.Item2 == messageName)
+            {
+                uavcanChannels = _flattenedDsdlMessages[key];
+                return true;
+            }
+            uavcanChannels = new List<UavcanChannel>();
+            return false;
         }
 
-        /// <summary>
-        /// Maps all the DSDL-files with their respective DataTypeID,
-        /// one for messages and one for services.
-        /// </summary>
-        private void GenerateDataIdMap()
+        public bool GetSerializationRuleForService(uint subjectId, out UavcanService service)
         {
-            foreach (var key in ParsedDsdl.Keys)
+            var key = _flattenedServices.Keys.FirstOrDefault(x => x.Item1 == subjectId);
+            if (key.Item1 == subjectId)
             {
-                // defaultDataTypeID is set to -1 if the UAVCAN file associated with it does not
-                // contain a DataTypeID. Then it is just a datatype, and not a message/service
-                var canId = ParsedDsdl[key].defaultDataTypeID;
-                if (canId == 0)
-                {
-                    continue;
-                }
-
-                if (ParsedDsdl[key].messageType == MessageType.MESSAGE)
-                {
-                    if (MessageDataIdMap.ContainsKey(canId))
-                    {
-                        throw new DsdlException("Two or more message use the same messageID: " + canId.ToString());
-                    }
-
-                    MessageDataIdMap.Add(canId, key);
-                    MessageDataIdMapReversed.Add(key, canId);
-                }
-                else
-                {
-                    if (ServiceDataIdMap.ContainsKey(canId))
-                    {
-                        throw new DsdlException("Two or more services use the same messageID: " + canId.ToString());
-                    }
-
-                    ServiceDataIdMap.Add(canId, key);
-                    ServiceDataIdMapReversed.Add(key, canId);
-                }
+                service = _flattenedServices[key];
+                return true;
             }
+            service = new UavcanService(new List<UavcanChannel>(), new List<UavcanChannel>(), 0, "");
+            return false;
         }
 
-        /// <summary>
-        /// Generates data channels for all fields in the DSDL messages with a messageTypeId. These will be used by the
-        /// AnalyzeDataModel.
-        /// </summary>
-        /// <returns></returns>
-        public Dictionary<string, UavcanChannel> GenerateDsdlDatachannelDict()
+        public bool GetSerializationRuleForService(string serviceName, out UavcanService service)
         {
-            var outDict = new Dictionary<string, UavcanChannel>();
-
-            foreach (var keyValuePair in FlattenedDsdlMessages)
+            var key = _flattenedServices.Keys.FirstOrDefault(x => x.Item2 == serviceName);
+            if (key.Item2 == serviceName)
             {
-                var baseName = keyValuePair.Key;
-                var value = keyValuePair.Value;
-                foreach (var uavcanChannel in value.Where(uavcanChannel => uavcanChannel.Basetype != BaseType.VOID))
-                {
-                    if (MessageDataIdMapReversed.TryGetValue(baseName, out var canId))
-                    {
-                        if (uavcanChannel.IsDynamic)
-                        {
-                            for (int i = 0; i < uavcanChannel.ArraySize; i++)
-                            {
-                                var FullName = uavcanChannel.FieldName + "_" + i;
-                                try
-                                {
-                                    outDict.Add(FullName, uavcanChannel);
-                                }
-                                catch (Exception)
-                                {
-                                    throw new DsdlException("Two or more messages use the same name: " + FullName);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            var FullName = uavcanChannel.FieldName;
-                            try
-                            {
-                                outDict.Add(FullName, uavcanChannel);
-                            }
-                            catch (Exception)
-                            {
-                                throw new DsdlException("Two or more messages use the same name: " + FullName);
-                            }
-                        }
-                    }
-                }
+                service = _flattenedServices[key];
+                return true;
             }
-
-            foreach (var keyValuePair in FlattenedServices)
-            {
-                var baseName = keyValuePair.Key;
-                var value = keyValuePair.Value;
-                foreach (var uavcanChannel in value.ResponseFields.Where(uavcanChannel =>
-                    uavcanChannel.Basetype != BaseType.VOID))
-                {
-                    if (ServiceDataIdMapReversed.TryGetValue(baseName, out var canId))
-                    {
-                        if (uavcanChannel.IsDynamic)
-                        {
-                            for (int i = 0; i < uavcanChannel.ArraySize; i++)
-                            {
-                                var FullName = RESPONSE_PREFIX + uavcanChannel.FieldName + "_" + i;
-                                try
-                                {
-                                    outDict.Add(FullName, uavcanChannel);
-                                }
-                                catch (Exception)
-                                {
-                                    throw new DsdlException("Two or more messages use the same name: " + FullName);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            var FullName = RESPONSE_PREFIX + uavcanChannel.FieldName;
-                            try
-                            {
-                                outDict.Add(FullName, uavcanChannel);
-                            }
-                            catch (Exception)
-                            {
-                                throw new DsdlException("Two or more messages use the same name: " + FullName);
-                            }
-                        }
-                    }
-                }
-
-                var uavcanChannelsWithoutBasetypeVoid
-                    = value.RequestFields.Where(uavcanChannel => uavcanChannel.Basetype != BaseType.VOID);
-
-                foreach (var uavcanChannel in uavcanChannelsWithoutBasetypeVoid)
-                {
-                    if (ServiceDataIdMapReversed.TryGetValue(baseName, out var canId))
-                    {
-                        if (uavcanChannel.IsDynamic)
-                        {
-                            for (int i = 0; i < uavcanChannel.ArraySize; i++)
-                            {
-                                var FullName = REQUEST_PREFIX + uavcanChannel.FieldName + "_" + i;
-                                try
-                                {
-                                    outDict.Add(FullName, uavcanChannel);
-                                }
-                                catch (Exception)
-                                {
-                                    throw new DsdlException("Two or more messages use the same name: " + FullName);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            var FullName = REQUEST_PREFIX + uavcanChannel.FieldName;
-                            try
-                            {
-                                outDict.Add(FullName, uavcanChannel);
-                            }
-                            catch (Exception)
-                            {
-                                throw new DsdlException("Two or more messages use the same name: " + FullName);
-                            }
-                        }
-                    }
-                }
-            }
-
-            return outDict;
+            service = new UavcanService(new List<UavcanChannel>(), new List<UavcanChannel>(), 0, "");
+            return false;
         }
 
         /// <summary>
@@ -290,19 +100,22 @@ namespace RevolveUavcan.Dsdl
         /// <returns></returns>
         private void FlattenDictionary()
         {
-            foreach (var key in ParsedDsdl.Keys.Where(key => ParsedDsdl[key].defaultDataTypeID != 0))
+            foreach (var key in _parsedDsdl.Keys.Where(key => _parsedDsdl[key].defaultDataTypeID != 0))
             {
-                if (ParsedDsdl[key].messageType == MessageType.MESSAGE)
+                var compoundType = _parsedDsdl[key];
+
+                var combinedKey = new Tuple<uint, string>(compoundType.defaultDataTypeID, key);
+                if (compoundType.messageType == MessageType.MESSAGE)
                 {
-                    FlattenedDsdlMessages.Add(key, FlattenFieldList(ParsedDsdl[key].requestFields, key));
+                    _flattenedDsdlMessages.Add(combinedKey, FlattenFieldList(compoundType.requestFields, key));
                 }
                 else
                 {
-                    var reqFields = FlattenFieldList(ParsedDsdl[key].requestFields, key);
-                    var resFields = FlattenFieldList(ParsedDsdl[key].responseFields, key);
-                    FlattenedServices.Add(key,
-                        new UavcanService(reqFields, resFields, ParsedDsdl[key].defaultDataTypeID,
-                            ParsedDsdl[key].FullName));
+                    var reqFields = FlattenFieldList(compoundType.requestFields, key);
+                    var resFields = FlattenFieldList(compoundType.responseFields, key);
+                    _flattenedServices.Add(combinedKey,
+                        new UavcanService(reqFields, resFields, compoundType.defaultDataTypeID,
+                            compoundType.FullName));
                 }
             }
         }
@@ -323,10 +136,7 @@ namespace RevolveUavcan.Dsdl
                 {
                     var fieldName = (parentName != "") ? (parentName + "." + field.name) : (field.name);
                     var list = FlattenFieldList((field.type as CompoundType).requestFields, fieldName);
-                    foreach (var tuple in list)
-                    {
-                        outList.Add(tuple);
-                    }
+                    outList.AddRange(list);
                 }
 
                 else if (field.type.Category == Category.ARRAY)
@@ -392,6 +202,53 @@ namespace RevolveUavcan.Dsdl
             }
 
             return outList;
+        }
+
+
+        /// <summary>
+        /// Generates a list of nodes to send Uavcan service from
+        /// </summary>
+        /// <returns></returns>
+        public Dictionary<string, uint> GenerateListOfNodes(string nodeDefFile)
+        {
+            // Gets all nodes defined in a DSDL file
+            var hasNodeIds = _parsedDsdl.TryGetValue(nodeDefFile,
+                out var nodeIds);
+
+            if (hasNodeIds)
+            {
+                var nodeNameToNodeId = new Dictionary<string, uint>();
+
+                foreach (var constant in nodeIds.requestConstants)
+                {
+                    try
+                    {
+                        nodeNameToNodeId.Add(constant.name, uint.Parse(constant.StringValue));
+                    }
+                    catch (ArgumentNullException)
+                    {
+                        _logger.Warn("Constant's string value cannot be null.");
+                    }
+                    catch (ArgumentException)
+                    {
+                        _logger.Warn("Not a NumberStyles value.");
+                    }
+                    catch (FormatException)
+                    {
+                        _logger.Warn("Constant's string value is not format compliant.");
+                    }
+                    catch (OverflowException)
+                    {
+                        _logger
+                            .Warn("Constant's string value is either less thna MinValue or greater than MaxValue.");
+                    }
+                }
+                return nodeNameToNodeId;
+            }
+            else
+            {
+                throw new DsdlException("No node IDs found.");
+            }
         }
     }
 }
