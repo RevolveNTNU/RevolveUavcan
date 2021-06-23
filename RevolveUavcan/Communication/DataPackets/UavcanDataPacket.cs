@@ -2,7 +2,7 @@
 using RevolveUavcan.Dsdl.Fields;
 using RevolveUavcan.Uavcan;
 
-namespace RevolveUavcan.Telemetry.DataPackets
+namespace RevolveUavcan.Communication.DataPackets
 {
     public class UavcanDataPacket
     {

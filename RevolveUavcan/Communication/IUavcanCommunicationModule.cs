@@ -1,7 +1,7 @@
 ﻿using RevolveUavcan.Uavcan;
 using System;
 
-namespace RevolveUavcan.Telemetry
+namespace RevolveUavcan.Communication
 {
     public interface IUavcanCommunicationModule
     {
