@@ -5,5 +5,5 @@ int3 a
 uint3 b
 float32 c
 float64 d
-void16 e
+void16
 bool f

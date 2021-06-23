@@ -13,37 +13,31 @@ namespace RevolveUavcan.Uavcan
         public static string REQUEST_PREFIX = "request_";
         public static string RESPONSE_PREFIX = "response_";
 
-        private Dictionary<string, CompoundType> _parsedDsdl;
-
         public Dictionary<Tuple<uint, string>, List<UavcanChannel>> MessageSerializationRules { get; private set; }
         public Dictionary<Tuple<uint, string>, UavcanService> ServiceSerializationRules { get; private set; }
-        private DsdlParser _parser { get; }
 
+        private Dictionary<string, CompoundType> _parsedDsdl;
         private readonly ILogger _logger;
 
-        public UavcanSerializationRulesGenerator(string dsdlPath, ILogger logger)
+        public UavcanSerializationRulesGenerator(Dictionary<string, CompoundType> parsedDsdl)
         {
-            _parser = new DsdlParser(dsdlPath);
-            _logger = logger;
+            _parsedDsdl = parsedDsdl;
 
             MessageSerializationRules = new Dictionary<Tuple<uint, string>, List<UavcanChannel>>();
             ServiceSerializationRules = new Dictionary<Tuple<uint, string>, UavcanService>();
         }
 
-
-        public bool InitDsdlRules()
+        public bool Init()
         {
             try
             {
-                _parsedDsdl = _parser.ParseAllDirectories();
                 GenerateSerializationRulesForAllDsdl();
+                return true;
             }
             catch (DsdlException)
             {
                 return false;
             }
-
-            return true;
         }
 
         public bool TryGetSerializationRuleForMessage(uint subjectId, out List<UavcanChannel> uavcanChannels)
