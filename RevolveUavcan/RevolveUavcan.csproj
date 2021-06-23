@@ -3,15 +3,27 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>8.0</LangVersion>
-    <PackageId>RevolveUavcanSharp</PackageId>
-    <Version>0.0.1</Version>
+    <PackageId>RevolveUavcan</PackageId>
+    <Version>0.0.2</Version>
     <Authors>Revolve NTNU</Authors>
-    <Product>RevolveUavcanSharp</Product>
+    <Product>RevolveUavcan</Product>
     <Description>A C# implementation of UAVCAN, including a runtime dsdl interpreter.</Description>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Copyright />
     <ApplicationIcon>Icon.ico</ApplicationIcon>
+    <PackageLicenseFile></PackageLicenseFile>
+    <PackageProjectUrl>https://revolve.no</PackageProjectUrl>
+    <PackageIcon></PackageIcon>
+    <RepositoryUrl>https://github.com/RevolveNTNU/RevolveUavcan</RepositoryUrl>
+    <RepositoryType>Public</RepositoryType>
+    <PackageTags>UAVCAN</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Icon.ico" />
+    <None Remove="Icon.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
