@@ -128,7 +128,9 @@ namespace RevolveUavcanTest.Uavcan
         [DynamicData(nameof(GetDsdlAndResultForService), DynamicDataSourceType.Method)]
         public void GenerateSingleServiceSerializationRule(Dictionary<string, CompoundType> dsdlDict, uint expectedSubjectId, string expectedServiceName, List<UavcanChannel> expectedRequestSerializationRule, List<UavcanChannel> expectedResponseSerializationRule)
         {
-            var rulesGenerator = new UavcanSerializationRulesGenerator(dsdlDict);
+            var dsdlParser = new Moq.Mock<IDsdlParser>();
+            dsdlParser.Setup(d => d.ParseAllDirectories()).Returns(dsdlDict);
+            var rulesGenerator = new UavcanSerializationRulesGenerator(dsdlParser.Object);
             Assert.IsTrue(rulesGenerator.Init());
 
             Assert.IsTrue(rulesGenerator.TryGetSerializationRuleForService(expectedSubjectId, out var idRules));
