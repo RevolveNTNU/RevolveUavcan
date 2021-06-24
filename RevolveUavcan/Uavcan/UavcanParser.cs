@@ -6,6 +6,7 @@ using RevolveUavcan.Dsdl.Fields;
 using RevolveUavcan.Dsdl.Types;
 using RevolveUavcan.Communication.DataPackets;
 using RevolveUavcan.Tools;
+using RevolveUavcan.Uavcan.Interfaces;
 
 namespace RevolveUavcan.Uavcan
 {
@@ -112,8 +113,6 @@ namespace RevolveUavcan.Uavcan
                 if (channel.Basetype != BaseType.VOID)
                 {
                     var result = ParseUavcanChannel(bitArray, channel, bitOffset);
-
-                    var prefix = frame.IsServiceNotMessage ? (frame.IsRequestNotResponse ? UavcanSerializationRulesGenerator.REQUEST_PREFIX : UavcanSerializationRulesGenerator.RESPONSE_PREFIX) : "";
 
                     dataDictionary.Add(channel, result);
                 }

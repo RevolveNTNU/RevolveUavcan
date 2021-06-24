@@ -1,4 +1,5 @@
 using RevolveUavcan.Dsdl.Fields;
+using RevolveUavcan.Dsdl.Interfaces;
 using RevolveUavcan.Dsdl.Types;
 using System;
 using System.Collections.Generic;

@@ -1,7 +1,7 @@
 ﻿using RevolveUavcan.Communication.DataPackets;
 using System;
 
-namespace RevolveUavcan.Uavcan
+namespace RevolveUavcan.Uavcan.Interfaces
 {
     interface IUavcanParser
     {
