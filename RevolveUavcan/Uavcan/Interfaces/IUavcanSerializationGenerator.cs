@@ -5,7 +5,7 @@ using System.Text;
 
 namespace RevolveUavcan.Uavcan.Interfaces
 {
-    interface IUavcanSerializationGenerator
+    public interface IUavcanSerializationGenerator
     {
         Dictionary<Tuple<uint, string>, List<UavcanChannel>> MessageSerializationRules { get; }
         Dictionary<Tuple<uint, string>, UavcanService> ServiceSerializationRules { get; }

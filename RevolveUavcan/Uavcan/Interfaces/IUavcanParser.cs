@@ -3,7 +3,7 @@ using System;
 
 namespace RevolveUavcan.Uavcan.Interfaces
 {
-    interface IUavcanParser
+    public interface IUavcanParser
     {
         event EventHandler<UavcanDataPacket> UavcanMessageParsed;
         event EventHandler<UavcanDataPacket> UavcanServiceParsed;
