@@ -10,9 +10,9 @@ using Attribute = RevolveUavcan.Dsdl.Fields.Attribute;
 
 namespace RevolveUavcan.Dsdl
 {
-    public class DsdlParser
+    public class DsdlParser : IDsdlParser
     {
-        public Dictionary<string, CompoundType> ParsedDsdlDict = new Dictionary<string, CompoundType>();
+        public Dictionary<string, CompoundType> ParsedDsdlDict { get; private set; } = new Dictionary<string, CompoundType>();
 
         /// <summary>
         /// Where the DSDL files to parse are located, defaults to the standard
