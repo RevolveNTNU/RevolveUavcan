@@ -17,7 +17,6 @@ namespace RevolveUavcan.Uavcan
         public Dictionary<Tuple<uint, string>, UavcanService> ServiceSerializationRules { get; private set; }
 
         private Dictionary<string, CompoundType> _parsedDsdl;
-        private readonly ILogger _logger;
 
         public UavcanSerializationRulesGenerator(Dictionary<string, CompoundType> parsedDsdl)
         {
@@ -200,53 +199,6 @@ namespace RevolveUavcan.Uavcan
             }
 
             return outList;
-        }
-
-
-        /// <summary>
-        /// Generates a list of nodes to send Uavcan service from
-        /// </summary>
-        /// <returns></returns>
-        public Dictionary<string, uint> GenerateListOfNodes(string nodeDefFile)
-        {
-            // Gets all nodes defined in a DSDL file
-            var hasNodeIds = _parsedDsdl.TryGetValue(nodeDefFile,
-                out var nodeIds);
-
-            if (hasNodeIds)
-            {
-                var nodeNameToNodeId = new Dictionary<string, uint>();
-
-                foreach (var constant in nodeIds.requestConstants)
-                {
-                    try
-                    {
-                        nodeNameToNodeId.Add(constant.name, uint.Parse(constant.StringValue));
-                    }
-                    catch (ArgumentNullException)
-                    {
-                        _logger.Warn("Constant's string value cannot be null.");
-                    }
-                    catch (ArgumentException)
-                    {
-                        _logger.Warn("Not a NumberStyles value.");
-                    }
-                    catch (FormatException)
-                    {
-                        _logger.Warn("Constant's string value is not format compliant.");
-                    }
-                    catch (OverflowException)
-                    {
-                        _logger
-                            .Warn("Constant's string value is either less thna MinValue or greater than MaxValue.");
-                    }
-                }
-                return nodeNameToNodeId;
-            }
-            else
-            {
-                throw new DsdlException("No node IDs found.");
-            }
         }
     }
 }
