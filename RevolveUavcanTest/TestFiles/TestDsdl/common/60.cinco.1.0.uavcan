@@ -7,3 +7,4 @@ float32 c
 float64 d
 void16
 bool f
+uint8[3] g

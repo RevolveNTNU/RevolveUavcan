@@ -11,7 +11,7 @@ namespace RevolveUavcanTest.Uavcan
     public class UavcanSerializationRulesGeneratorTests
     {
         [DataTestMethod]
-        [DynamicData(nameof(GetUavcanChannelsAndValues), DynamicDataSourceType.Method)]
+        [DynamicData(nameof(GetDsdlAndResult), DynamicDataSourceType.Method)]
         [DeploymentItem("60.cinco.1.0.uavcan", "TestFiles/TestDsdl/common")]
         public void GenerateSingleMessageSerializationRule(Dictionary<string, CompoundType> dsdlDict, uint expectedSubjectId, string expectedMessageName, List<UavcanChannel> expectedSerializationRule)
         {
@@ -49,7 +49,7 @@ namespace RevolveUavcanTest.Uavcan
 
         }
 
-        public static IEnumerable<object[]> GetUavcanChannelsAndValues()
+        public static IEnumerable<object[]> GetDsdlAndResult()
         {
             string fullNameCinco = "TestDsdl.common.cinco";
             uint subjectIdCinco = 60;
@@ -65,6 +65,7 @@ namespace RevolveUavcanTest.Uavcan
             compoundTypeCinco.requestFields.Add(new Field(new PrimitiveType(BaseType.FLOAT, 64, CastMode.SATURATED), "d"));
             compoundTypeCinco.requestFields.Add(new Field(new VoidType(16), ""));
             compoundTypeCinco.requestFields.Add(new Field(new PrimitiveType(BaseType.BOOLEAN, 1, CastMode.SATURATED), "f"));
+            compoundTypeCinco.requestFields.Add(new Field(new ArrayType(new PrimitiveType(BaseType.UNSIGNED_INT, 8, CastMode.SATURATED), ArrayMode.STATIC, 3), "g"));
 
             List<UavcanChannel> expectedRuleCinco = new List<UavcanChannel>();
             expectedRuleCinco.Add(new UavcanChannel(BaseType.SIGNED_INT, 3, "TestDsdl.common.cinco.a"));
@@ -73,7 +74,9 @@ namespace RevolveUavcanTest.Uavcan
             expectedRuleCinco.Add(new UavcanChannel(BaseType.FLOAT, 64, "TestDsdl.common.cinco.d"));
             expectedRuleCinco.Add(new UavcanChannel(BaseType.VOID, 16, ""));
             expectedRuleCinco.Add(new UavcanChannel(BaseType.BOOLEAN, 1, "TestDsdl.common.cinco.f"));
-
+            expectedRuleCinco.Add(new UavcanChannel(BaseType.UNSIGNED_INT, 8, "TestDsdl.common.cinco.g_0"));
+            expectedRuleCinco.Add(new UavcanChannel(BaseType.UNSIGNED_INT, 8, "TestDsdl.common.cinco.g_1"));
+            expectedRuleCinco.Add(new UavcanChannel(BaseType.UNSIGNED_INT, 8, "TestDsdl.common.cinco.g_2"));
 
             yield return new object[] { new Dictionary<string, CompoundType> { { fullNameCinco, compoundTypeCinco } }, subjectIdCinco, fullNameCinco, expectedRuleCinco };
 
@@ -116,6 +119,68 @@ namespace RevolveUavcanTest.Uavcan
             expectedRuleMzRef.Add(new UavcanChannel(BaseType.FLOAT, 32, "TestDsdl.control.MzRefDebug.open_loop_pid.d_term"));
 
             yield return new object[] { new Dictionary<string, CompoundType> { { fullNameMzRef, compoundTypeMzRef }, { fullNamePid, compoundTypePid } }, subjectIdMzRef, fullNameMzRef, expectedRuleMzRef };
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetDsdlAndResultForService), DynamicDataSourceType.Method)]
+        public void GenerateSingleServiceSerializationRule(Dictionary<string, CompoundType> dsdlDict, uint expectedSubjectId, string expectedServiceName, List<UavcanChannel> expectedRequestSerializationRule, List<UavcanChannel> expectedResponseSerializationRule)
+        {
+            var rulesGenerator = new UavcanSerializationRulesGenerator(dsdlDict);
+            Assert.IsTrue(rulesGenerator.Init());
+
+            Assert.IsTrue(rulesGenerator.TryGetSerializationRuleForService(expectedSubjectId, out var idRules));
+            Assert.IsTrue(rulesGenerator.TryGetSerializationRuleForService(expectedServiceName, out var nameRules));
+
+            AssertEqualSerializationRules(idRules.RequestFields, expectedRequestSerializationRule);
+            AssertEqualSerializationRules(idRules.ResponseFields, expectedResponseSerializationRule);
+
+            AssertEqualSerializationRules(nameRules.RequestFields, expectedRequestSerializationRule);
+            AssertEqualSerializationRules(nameRules.ResponseFields, expectedResponseSerializationRule);
+        }
+
+        public static IEnumerable<object[]> GetDsdlAndResultForService()
+        {
+            string fullName = "TestDsdl.dashboard.RTDS";
+            uint subjectId = 35;
+            CompoundType compoundType = new CompoundType(fullName,
+                MessageType.SERVICE,
+                @"TestFiles/TestDsdl/dashboard/35.RTDS.1.0.uavcan",
+                subjectId,
+                new System.Tuple<int, int>(1, 0),
+                File.ReadAllText(@"TestFiles/TestDsdl/dashboard/35.RTDS.1.0.uavcan"));
+
+            compoundType.requestFields.Add(new Field(new PrimitiveType(BaseType.UNSIGNED_INT, 8, CastMode.SATURATED), "command"));
+            compoundType.responseFields.Add(new Field(new PrimitiveType(BaseType.UNSIGNED_INT, 8, CastMode.SATURATED), "success"));
+
+            List<UavcanChannel> expectedRuleRequest = new List<UavcanChannel>() {
+                new UavcanChannel(BaseType.UNSIGNED_INT, 8, "TestDsdl.dashboard.RTDS.command")
+            };
+
+            List<UavcanChannel> expectedRuleResponse = new List<UavcanChannel>() {
+                new UavcanChannel(BaseType.UNSIGNED_INT, 8, "TestDsdl.dashboard.RTDS.success")
+            };
+
+            yield return new object[] { new Dictionary<string, CompoundType> { { fullName, compoundType } }, subjectId, fullName, expectedRuleRequest, expectedRuleResponse };
+        }
+
+        private void AssertEqualSerializationRules(List<UavcanChannel> expected, List<UavcanChannel> actual)
+        {
+            Assert.AreEqual(expected.Count, actual.Count);
+
+            for (int i = 0; i < expected.Count; i++)
+            {
+                Assert.AreEqual(expected[i].FieldName, actual[i].FieldName);
+
+                Assert.AreEqual(expected[i].Size, actual[i].Size);
+
+                Assert.AreEqual(expected[i].ArraySize, actual[i].ArraySize);
+
+                Assert.AreEqual(expected[i].Basetype, actual[i].Basetype);
+
+                Assert.AreEqual(expected[i].IsArray, actual[i].IsArray);
+
+                Assert.AreEqual(expected[i].IsDynamic, actual[i].IsDynamic);
+            }
         }
     }
 }
