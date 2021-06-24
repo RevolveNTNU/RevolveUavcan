@@ -1,6 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NLog;
 using RevolveUavcan.Communication.DataPackets;
 using RevolveUavcan.Dsdl.Fields;
 using RevolveUavcan.Uavcan;
@@ -14,15 +14,17 @@ namespace RevolveUavcanTest.Uavcan
     public class UavcanParserTests
     {
         private Mock<IUavcanSerializationGenerator> rulesGeneratorMock;
-        private Mock<ILogger> loggerMock;
+        private Mock<ILogger<UavcanParser>> parserLoggerMock;
+        private Mock<ILogger<UavcanFrameStorage>> frameStorageLoggerMock;
         private UavcanFrameStorage frameStorage;
 
         [TestInitialize]
         public void Setup()
         {
             rulesGeneratorMock = new Mock<IUavcanSerializationGenerator>();
-            loggerMock = new Mock<ILogger>();
-            frameStorage = new UavcanFrameStorage(loggerMock.Object);
+            parserLoggerMock = new Mock<ILogger<UavcanParser>>();
+            frameStorageLoggerMock = new Mock<ILogger<UavcanFrameStorage>>();
+            frameStorage = new UavcanFrameStorage(frameStorageLoggerMock.Object);
         }
 
 
@@ -32,7 +34,7 @@ namespace RevolveUavcanTest.Uavcan
         {
             rulesGeneratorMock.Setup(s => s.TryGetSerializationRuleForMessage(subjectId, out serializationRule)).Returns(true);
 
-            var parser = new UavcanParser(loggerMock.Object, rulesGeneratorMock.Object, frameStorage);
+            var parser = new UavcanParser(parserLoggerMock.Object, rulesGeneratorMock.Object, frameStorage);
 
             var packets = new List<UavcanDataPacket>();
 
@@ -90,7 +92,7 @@ namespace RevolveUavcanTest.Uavcan
         {
             rulesGeneratorMock.Setup(s => s.TryGetSerializationRuleForService(subjectId, out service)).Returns(true);
 
-            var parser = new UavcanParser(loggerMock.Object, rulesGeneratorMock.Object, frameStorage);
+            var parser = new UavcanParser(parserLoggerMock.Object, rulesGeneratorMock.Object, frameStorage);
 
             var packets = new List<UavcanDataPacket>();
 

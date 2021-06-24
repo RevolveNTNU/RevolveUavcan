@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using NLog;
+using Microsoft.Extensions.Logging;
 using RevolveUavcan.Communication;
 
 namespace RevolveUavcan.Uavcan
@@ -18,7 +18,7 @@ namespace RevolveUavcan.Uavcan
         /// </summary>
         private readonly Dictionary<byte, Dictionary<uint, UavcanFrame>> _transferIdBuffer;
 
-        public UavcanFrameStorage(ILogger logger)
+        public UavcanFrameStorage(ILogger<UavcanFrameStorage> logger)
         {
             _logger = logger;
 
@@ -56,7 +56,7 @@ namespace RevolveUavcan.Uavcan
                     // If we dont have a frame in the storage with the transation ID of the frame,
                     // something must have gone wrong during storage. Cannot pass it on then.
                     _logger
-                        .Warn(
+                        .LogWarning(
                             $"Error occured in frame storage. No matching frame for Subject ID {frame.SubjectId} was found.");
                     return;
                 }
@@ -76,7 +76,7 @@ namespace RevolveUavcan.Uavcan
                     // If we dont have a frame in the storage with the Subject ID of the frame,
                     // something must have gone wrong during storage. Cannot pass it on then.
                     _logger
-                        .Warn(
+                        .LogWarning(
                             $"Error occured in frame storage. No matching frame for Subject ID {frame.SubjectId} was found.");
                 }
             }
@@ -117,7 +117,7 @@ namespace RevolveUavcan.Uavcan
                         if (!subjectIdDictionary.TryGetValue(frame.SubjectId, out var frameFromSubjectId))
                         {
                             _logger
-                                .Warn($"No startframe found for subject ID {frame.SubjectId}. Frame is discarded");
+                                .LogWarning($"No startframe found for subject ID {frame.SubjectId}. Frame is discarded");
                             subjectIdDictionary.Remove(frame.SubjectId);
                             return;
                         }

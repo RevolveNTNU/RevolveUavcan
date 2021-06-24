@@ -1,12 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using NLog;
 using RevolveUavcan.Dsdl.Fields;
 using RevolveUavcan.Dsdl.Types;
 using RevolveUavcan.Communication.DataPackets;
 using RevolveUavcan.Tools;
 using RevolveUavcan.Uavcan.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace RevolveUavcan.Uavcan
 {
@@ -26,7 +26,7 @@ namespace RevolveUavcan.Uavcan
         /// <param name="logger">Logger used for log output</param>
         /// <param name="uavcanSerializationRuleGenerator">Serialization rules to be used in parsing and serialising</param>
         /// <param name="frameStorage">Framestorage that will provide frames to be parsed</param>
-        public UavcanParser(ILogger logger, IUavcanSerializationGenerator uavcanSerializationRuleGenerator, UavcanFrameStorage frameStorage)
+        public UavcanParser(ILogger<UavcanParser> logger, IUavcanSerializationGenerator uavcanSerializationRuleGenerator, UavcanFrameStorage frameStorage)
         {
             _logger = logger;
             _uavcanSerializationRulesGenerator = uavcanSerializationRuleGenerator;
@@ -63,7 +63,7 @@ namespace RevolveUavcan.Uavcan
                 if (!_invalidMessageIds.Contains(frame.SubjectId))
                 {
                     // If we cannot find a DSDL mapping for this ID, we cannot parse the data. Frame is then discarded
-                    _logger.Warn($"Unable to find a DSDL mapping for Message ID {frame.SubjectId}");
+                    _logger.LogWarning($"Unable to find a DSDL mapping for Message ID {frame.SubjectId}");
 
                     //Toast.Warning($"No DSDL mapping found for Message ID: {frame.SubjectId}");
                     _invalidMessageIds.Add(frame.SubjectId);
@@ -92,7 +92,7 @@ namespace RevolveUavcan.Uavcan
                 if (!_invalidServiceIds.Contains(frame.SubjectId))
                 {
                     // If we cannot find a DSDL mapping for this ID, we cannot parse the data. Frame is then discarded
-                    _logger.Warn($"Unable to find a DSDL mapping for Service ID {frame.SubjectId}");
+                    _logger.LogWarning($"Unable to find a DSDL mapping for Service ID {frame.SubjectId}");
                     _invalidServiceIds.Add(frame.SubjectId);
                 }
             }
