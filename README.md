@@ -6,8 +6,8 @@ There are currently some limitations present in this implementation, some by cho
 
 - Does not consider @ commands in the DSDL
 - Does not support serialization of Multiframe messages
-- Does only support CAN-FD message sizes, meaning that 64 is the max message size.
 - Multiframe reading does not work perfectly, suspect some threading issues
 
-# Test coverage
+# Status badges
 [![Coverage Status](https://coveralls.io/repos/github/RevolveNTNU/RevolveUavcan/badge.svg?branch=tribe)](https://coveralls.io/github/RevolveNTNU/RevolveUavcan?branch=tribe)
+[![Build, run tests and generate report](https://github.com/RevolveNTNU/RevolveUavcan/actions/workflows/build_and_test.yml/badge.svg)](https://github.com/RevolveNTNU/RevolveUavcan/actions/workflows/build_and_test.yml)
