@@ -132,7 +132,7 @@ namespace RevolveUavcan.Tools
             // Find and return corresponding integer value from bitArrayWithMsb
             int[] array = new int[2];
             bitArrayWithMsb.CopyTo(array, 0);
-            return array[0] + ((long)array[1] << 32);
+            return (uint)array[0] + ((long)(uint)array[1] << 32);
         }
 
         public static double GetFloatFromBitArray(this BitArray dataBits)

@@ -4,15 +4,13 @@ using RevolveUavcan.Dsdl;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using NLog;
+using RevolveUavcan.Uavcan.Interfaces;
+using RevolveUavcan.Dsdl.Interfaces;
 
 namespace RevolveUavcan.Uavcan
 {
-    public class UavcanSerializationRulesGenerator
+    public class UavcanSerializationRulesGenerator : IUavcanSerializationGenerator
     {
-        public static string REQUEST_PREFIX = "request_";
-        public static string RESPONSE_PREFIX = "response_";
-
         public Dictionary<Tuple<uint, string>, List<UavcanChannel>> MessageSerializationRules { get; private set; }
         public Dictionary<Tuple<uint, string>, UavcanService> ServiceSerializationRules { get; private set; }
 

@@ -77,7 +77,6 @@ namespace RevolveUavcanTest.Tools
 
         [DataTestMethod]
         [DynamicData(nameof(GetLongValidData), DynamicDataSourceType.Method)]
-        [Ignore]
         public void GetLongValidArgsTest(BitArray bitArray, long expectedResult)
         {
             var result = bitArray.GetLongFromBitArray();

@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace RevolveUavcan.Dsdl
+namespace RevolveUavcan.Dsdl.Interfaces
 {
     public interface IDsdlParser
     {
