@@ -26,7 +26,7 @@ namespace RevolveUavcan.Dsdl
             DsdlPath = dsdlPath;
         }
 
-        public Dictionary<string, CompoundType> ParseAllDirectories()
+        public void ParseAllDirectories()
         {
             // Reset the dictionary of parsed dsdl rules
             ParsedDsdlDict = new Dictionary<string, CompoundType>();
@@ -34,7 +34,7 @@ namespace RevolveUavcan.Dsdl
             // Return immediately if the DSDL directory doesn't exist
             if (!Directory.Exists(DsdlPath))
             {
-                return ParsedDsdlDict;
+                throw new DsdlException($"Dsdl Path: {DsdlPath} could not be found!");
             }
 
             // Parse each .uavcan file in the directory, including subdirectories
@@ -51,8 +51,6 @@ namespace RevolveUavcan.Dsdl
                     ParsedDsdlDict.Add(type.FullName, type);
                 }
             }
-
-            return ParsedDsdlDict;
         }
 
 

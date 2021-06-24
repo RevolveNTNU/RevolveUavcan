@@ -18,7 +18,7 @@ namespace RevolveUavcanTest.Uavcan
         public void GenerateSingleMessageSerializationRule(Dictionary<string, CompoundType> dsdlDict, uint expectedSubjectId, string expectedMessageName, List<UavcanChannel> expectedSerializationRule)
         {
             var dsdlParser = new Moq.Mock<IDsdlParser>();
-            dsdlParser.Setup(d => d.ParseAllDirectories()).Returns(dsdlDict);
+            dsdlParser.Setup(d => d.ParsedDsdlDict).Returns(dsdlDict);
             var rulesGenerator = new UavcanSerializationRulesGenerator(dsdlParser.Object);
             Assert.IsTrue(rulesGenerator.Init());
 
@@ -130,7 +130,7 @@ namespace RevolveUavcanTest.Uavcan
         public void GenerateSingleServiceSerializationRule(Dictionary<string, CompoundType> dsdlDict, uint expectedSubjectId, string expectedServiceName, List<UavcanChannel> expectedRequestSerializationRule, List<UavcanChannel> expectedResponseSerializationRule)
         {
             var dsdlParser = new Moq.Mock<IDsdlParser>();
-            dsdlParser.Setup(d => d.ParseAllDirectories()).Returns(dsdlDict);
+            dsdlParser.Setup(d => d.ParsedDsdlDict).Returns(dsdlDict);
             var rulesGenerator = new UavcanSerializationRulesGenerator(dsdlParser.Object);
             Assert.IsTrue(rulesGenerator.Init());
 

@@ -158,12 +158,12 @@ namespace RevolveUavcanTest.Dsdl
         [DeploymentItem("60.cinco.1.0.uavcan", "TestFiles/TestDsdl/common")]
         public void ParseFullNamespaceTest()
         {
-            var parsedDsdl = parser.ParseAllDirectories();
+            parser.ParseAllDirectories();
 
-            Assert.AreEqual(5, parsedDsdl.Count);
+            Assert.AreEqual(5, parser.ParsedDsdlDict.Count);
 
             List<string> dsdlNames = new List<string> { "TestDsdl.PitotTube", "TestDsdl.dashboard.RTDS", "TestDsdl.control.MzRefDebug", "TestDsdl.control.PIDControl", "TestDsdl.common.cinco" };
-            foreach (var keyValPair in parsedDsdl)
+            foreach (var keyValPair in parser.ParsedDsdlDict)
             {
                 Assert.IsTrue(dsdlNames.Contains(keyValPair.Key));
             }

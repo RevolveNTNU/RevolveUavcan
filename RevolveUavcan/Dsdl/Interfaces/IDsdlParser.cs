@@ -10,7 +10,7 @@ namespace RevolveUavcan.Dsdl.Interfaces
         Dictionary<string, CompoundType> ParsedDsdlDict { get; }
         string DsdlPath { get; set; }
 
-        Dictionary<string, CompoundType> ParseAllDirectories();
+        void ParseAllDirectories();
         CompoundType ParseSource(string filename, string sourceText);
     }
 }

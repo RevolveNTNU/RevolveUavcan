@@ -13,12 +13,10 @@ namespace RevolveUavcan.Uavcan
     {
         public Dictionary<Tuple<uint, string>, List<UavcanChannel>> MessageSerializationRules { get; private set; }
         public Dictionary<Tuple<uint, string>, UavcanService> ServiceSerializationRules { get; private set; }
-
-        private Dictionary<string, CompoundType> _parsedDsdl;
-        private IDsdlParser _dsdlParser;
+        public IDsdlParser DsdlParser { get; }
         public UavcanSerializationRulesGenerator(IDsdlParser dsdlParser)
         {
-            _dsdlParser = dsdlParser;
+            DsdlParser = dsdlParser;
 
             MessageSerializationRules = new Dictionary<Tuple<uint, string>, List<UavcanChannel>>();
             ServiceSerializationRules = new Dictionary<Tuple<uint, string>, UavcanService>();
@@ -28,7 +26,7 @@ namespace RevolveUavcan.Uavcan
         {
             try
             {
-                _parsedDsdl = _dsdlParser.ParseAllDirectories();
+                DsdlParser.ParseAllDirectories();
                 GenerateSerializationRulesForAllDsdl();
                 return true;
             }
@@ -93,9 +91,9 @@ namespace RevolveUavcan.Uavcan
         /// <returns></returns>
         private void GenerateSerializationRulesForAllDsdl()
         {
-            foreach (var key in _parsedDsdl.Keys.Where(key => _parsedDsdl[key].defaultDataTypeID != 0))
+            foreach (var key in DsdlParser.ParsedDsdlDict.Keys.Where(key => DsdlParser.ParsedDsdlDict[key].defaultDataTypeID != 0))
             {
-                var compoundType = _parsedDsdl[key];
+                var compoundType = DsdlParser.ParsedDsdlDict[key];
 
                 var combinedKey = new Tuple<uint, string>(compoundType.defaultDataTypeID, key);
                 if (compoundType.messageType == MessageType.MESSAGE)
