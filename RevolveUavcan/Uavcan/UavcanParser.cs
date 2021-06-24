@@ -12,7 +12,7 @@ namespace RevolveUavcan.Uavcan
     public class UavcanParser : IUavcanParser
     {
         private readonly ILogger _logger;
-        private readonly UavcanSerializationRulesGenerator _dsdlRuleGenerator;
+        private readonly UavcanSerializationRulesGenerator _uavcanSerializationRulesGenerator;
         private List<uint> _invalidMessageIds = new List<uint>();
         private List<uint> _invalidServiceIds = new List<uint>();
 
@@ -20,15 +20,15 @@ namespace RevolveUavcan.Uavcan
         public event EventHandler<UavcanDataPacket> UavcanServiceParsed;
 
         /// <summary>
-        /// Constructor for UAVCAN Parser. Registers the dsdl rules and subscribes to the framestorage
+        /// Constructor for UAVCAN Parser. Registers the serialization rules and subscribes to the framestorage
         /// </summary>
         /// <param name="logger">Logger used for log output</param>
-        /// <param name="dsdlRuleGenerator">DSDL rules to be used in parsing and serialising</param>
+        /// <param name="uavcanSerializationRuleGenerator">Serialization rules to be used in parsing and serialising</param>
         /// <param name="frameStorage">Framestorage that will provide frames to be parsed</param>
-        public UavcanParser(ILogger logger, UavcanSerializationRulesGenerator dsdlRuleGenerator, UavcanFrameStorage frameStorage)
+        public UavcanParser(ILogger logger, UavcanSerializationRulesGenerator uavcanSerializationRuleGenerator, UavcanFrameStorage frameStorage)
         {
             _logger = logger;
-            _dsdlRuleGenerator = dsdlRuleGenerator;
+            _uavcanSerializationRulesGenerator = uavcanSerializationRuleGenerator;
             frameStorage.UavcanPacketReceived += ParseUavcanFrame;
         }
 
@@ -46,7 +46,7 @@ namespace RevolveUavcan.Uavcan
 
         private void ParseMessage(UavcanFrame frame)
         {
-            if (_dsdlRuleGenerator.TryGetSerializationRuleForMessage(frame.SubjectId, out var uavcanChannels))
+            if (_uavcanSerializationRulesGenerator.TryGetSerializationRuleForMessage(frame.SubjectId, out var uavcanChannels))
             {
                 var dataDictionary = ParseUavcanFrame(frame, uavcanChannels);
 
@@ -72,7 +72,7 @@ namespace RevolveUavcan.Uavcan
 
         private void ParseService(UavcanFrame frame)
         {
-            if (_dsdlRuleGenerator.TryGetSerializationRuleForService(frame.SubjectId, out var uavcanService))
+            if (_uavcanSerializationRulesGenerator.TryGetSerializationRuleForService(frame.SubjectId, out var uavcanService))
             {
                 var uavcanChannels = frame.IsRequestNotResponse
                     ? uavcanService.RequestFields

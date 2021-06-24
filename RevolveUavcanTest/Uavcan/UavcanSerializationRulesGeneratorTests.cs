@@ -51,29 +51,71 @@ namespace RevolveUavcanTest.Uavcan
 
         public static IEnumerable<object[]> GetUavcanChannelsAndValues()
         {
-            CompoundType compoundType = new CompoundType("TestDsdl.common.cinco",
+            string fullNameCinco = "TestDsdl.common.cinco";
+            uint subjectIdCinco = 60;
+            CompoundType compoundTypeCinco = new CompoundType(fullNameCinco,
                 MessageType.MESSAGE,
                 @"TestFiles/TestDsdl/common/60.cinco.1.0.uavcan",
-                60,
+                subjectIdCinco,
                 new System.Tuple<int, int>(1, 0),
                 File.ReadAllText(@"TestFiles/TestDsdl/common/60.cinco.1.0.uavcan"));
-            compoundType.requestFields.Add(new Field(new PrimitiveType(BaseType.SIGNED_INT, 3, CastMode.SATURATED), "a"));
-            compoundType.requestFields.Add(new Field(new PrimitiveType(BaseType.UNSIGNED_INT, 3, CastMode.SATURATED), "b"));
-            compoundType.requestFields.Add(new Field(new PrimitiveType(BaseType.FLOAT, 32, CastMode.SATURATED), "c"));
-            compoundType.requestFields.Add(new Field(new PrimitiveType(BaseType.FLOAT, 64, CastMode.SATURATED), "d"));
-            compoundType.requestFields.Add(new Field(new VoidType(16), ""));
-            compoundType.requestFields.Add(new Field(new PrimitiveType(BaseType.BOOLEAN, 1, CastMode.SATURATED), "f"));
+            compoundTypeCinco.requestFields.Add(new Field(new PrimitiveType(BaseType.SIGNED_INT, 3, CastMode.SATURATED), "a"));
+            compoundTypeCinco.requestFields.Add(new Field(new PrimitiveType(BaseType.UNSIGNED_INT, 3, CastMode.SATURATED), "b"));
+            compoundTypeCinco.requestFields.Add(new Field(new PrimitiveType(BaseType.FLOAT, 32, CastMode.SATURATED), "c"));
+            compoundTypeCinco.requestFields.Add(new Field(new PrimitiveType(BaseType.FLOAT, 64, CastMode.SATURATED), "d"));
+            compoundTypeCinco.requestFields.Add(new Field(new VoidType(16), ""));
+            compoundTypeCinco.requestFields.Add(new Field(new PrimitiveType(BaseType.BOOLEAN, 1, CastMode.SATURATED), "f"));
 
-            List<UavcanChannel> expectedRule = new List<UavcanChannel>();
-            expectedRule.Add(new UavcanChannel(BaseType.SIGNED_INT, 3, "TestDsdl.common.cinco.a"));
-            expectedRule.Add(new UavcanChannel(BaseType.UNSIGNED_INT, 3, "TestDsdl.common.cinco.b"));
-            expectedRule.Add(new UavcanChannel(BaseType.FLOAT, 32, "TestDsdl.common.cinco.c"));
-            expectedRule.Add(new UavcanChannel(BaseType.FLOAT, 64, "TestDsdl.common.cinco.d"));
-            expectedRule.Add(new UavcanChannel(BaseType.VOID, 16, ""));
-            expectedRule.Add(new UavcanChannel(BaseType.BOOLEAN, 1, "TestDsdl.common.cinco.f"));
+            List<UavcanChannel> expectedRuleCinco = new List<UavcanChannel>();
+            expectedRuleCinco.Add(new UavcanChannel(BaseType.SIGNED_INT, 3, "TestDsdl.common.cinco.a"));
+            expectedRuleCinco.Add(new UavcanChannel(BaseType.UNSIGNED_INT, 3, "TestDsdl.common.cinco.b"));
+            expectedRuleCinco.Add(new UavcanChannel(BaseType.FLOAT, 32, "TestDsdl.common.cinco.c"));
+            expectedRuleCinco.Add(new UavcanChannel(BaseType.FLOAT, 64, "TestDsdl.common.cinco.d"));
+            expectedRuleCinco.Add(new UavcanChannel(BaseType.VOID, 16, ""));
+            expectedRuleCinco.Add(new UavcanChannel(BaseType.BOOLEAN, 1, "TestDsdl.common.cinco.f"));
 
 
-            yield return new object[] { new Dictionary<string, CompoundType> { { compoundType.FullName, compoundType } }, (uint)60, "TestDsdl.common.cinco", expectedRule };
+            yield return new object[] { new Dictionary<string, CompoundType> { { fullNameCinco, compoundTypeCinco } }, subjectIdCinco, fullNameCinco, expectedRuleCinco };
+
+            // Compound type that is not a message
+            string fullNamePid = "TestDsdl.control.PIDControl";
+            uint subjectIdPid = 0;
+            var compoundTypePid = new CompoundType(fullNamePid,
+                MessageType.MESSAGE,
+                @"TestFiles/TestDsdl/control/PIDControl.1.0.uavcan",
+                subjectIdPid,
+                new System.Tuple<int, int>(1, 0),
+                File.ReadAllText(@"TestFiles/TestDsdl/control/PIDControl.1.0.uavcan"));
+
+            compoundTypePid.requestFields.Add(new Field(new PrimitiveType(BaseType.FLOAT, 32, CastMode.SATURATED), "p_term"));
+            compoundTypePid.requestFields.Add(new Field(new PrimitiveType(BaseType.FLOAT, 32, CastMode.SATURATED), "i_term"));
+            compoundTypePid.requestFields.Add(new Field(new PrimitiveType(BaseType.FLOAT, 32, CastMode.SATURATED), "d_term"));
+
+            // A compound type which has a compound type as field
+            string fullNameMzRef = "TestDsdl.control.MzRefDebug";
+            uint subjectIdMzRef = 136;
+            var compoundTypeMzRef = new CompoundType(fullNameMzRef,
+                MessageType.MESSAGE,
+                @"TestFiles/TestDsdl/control/136.MzRefDebug.1.0.uavcan",
+                subjectIdMzRef,
+                new System.Tuple<int, int>(1, 0),
+                File.ReadAllText(@"TestFiles/TestDsdl/control/136.MzRefDebug.1.0.uavcan"));
+
+            compoundTypeMzRef.requestFields.Add(new Field(compoundTypePid, "closed_loop_pid"));
+            compoundTypeMzRef.requestFields.Add(new Field(new PrimitiveType(BaseType.FLOAT, 32, CastMode.SATURATED), "closed_loop_yaw_ref"));
+            compoundTypeMzRef.requestFields.Add(new Field(compoundTypePid, "open_loop_pid"));
+
+
+            var expectedRuleMzRef = new List<UavcanChannel>();
+            expectedRuleMzRef.Add(new UavcanChannel(BaseType.FLOAT, 32, "TestDsdl.control.MzRefDebug.closed_loop_pid.p_term"));
+            expectedRuleMzRef.Add(new UavcanChannel(BaseType.FLOAT, 32, "TestDsdl.control.MzRefDebug.closed_loop_pid.i_term"));
+            expectedRuleMzRef.Add(new UavcanChannel(BaseType.FLOAT, 32, "TestDsdl.control.MzRefDebug.closed_loop_pid.d_term"));
+            expectedRuleMzRef.Add(new UavcanChannel(BaseType.FLOAT, 32, "TestDsdl.control.MzRefDebug.closed_loop_yaw_ref"));
+            expectedRuleMzRef.Add(new UavcanChannel(BaseType.FLOAT, 32, "TestDsdl.control.MzRefDebug.open_loop_pid.p_term"));
+            expectedRuleMzRef.Add(new UavcanChannel(BaseType.FLOAT, 32, "TestDsdl.control.MzRefDebug.open_loop_pid.i_term"));
+            expectedRuleMzRef.Add(new UavcanChannel(BaseType.FLOAT, 32, "TestDsdl.control.MzRefDebug.open_loop_pid.d_term"));
+
+            yield return new object[] { new Dictionary<string, CompoundType> { { fullNameMzRef, compoundTypeMzRef }, { fullNamePid, compoundTypePid } }, subjectIdMzRef, fullNameMzRef, expectedRuleMzRef };
         }
     }
 }
