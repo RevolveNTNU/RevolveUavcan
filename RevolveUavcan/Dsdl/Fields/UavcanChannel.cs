@@ -8,9 +8,8 @@ namespace RevolveUavcan.Dsdl.Fields
         public BaseType Basetype { get; set; }
         public int Size { get; set; }
         public string FieldName { get; set; }
-        public bool IsArray { get; set; }
         public int ArraySize { get; set; }
-        public bool IsDynamic { get; set; }
+        public bool IsDynamicArray { get; set; }
         public int NumberOfBitsInSize { get; set; }
 
 
@@ -19,21 +18,19 @@ namespace RevolveUavcan.Dsdl.Fields
             Basetype = basetype;
             Size = size;
             FieldName = fieldName;
-            IsArray = false;
             ArraySize = 0;
-            IsDynamic = false;
+            IsDynamicArray = false;
         }
 
-        public UavcanChannel(BaseType basetype, int size, string fieldName, bool isArray, int arraySize, bool isDynamic)
+        public UavcanChannel(BaseType basetype, int size, string fieldName, int arraySize, bool isDynamicArray)
         {
             Basetype = basetype;
             Size = size;
             FieldName = fieldName;
-            IsArray = isArray;
             ArraySize = arraySize;
-            IsDynamic = isDynamic;
+            IsDynamicArray = isDynamicArray;
 
-            if (isDynamic)
+            if (IsDynamicArray)
             {
                 var temp = Math.Log(arraySize, 2);
                 NumberOfBitsInSize = Convert.ToInt32(Math.Ceiling(temp));

@@ -44,11 +44,8 @@ namespace RevolveUavcanTest.Uavcan
                 Assert.AreEqual(expectedSerializationRule[i].Basetype, idRules[i].Basetype);
                 Assert.AreEqual(expectedSerializationRule[i].Basetype, nameRules[i].Basetype);
 
-                Assert.AreEqual(expectedSerializationRule[i].IsArray, idRules[i].IsArray);
-                Assert.AreEqual(expectedSerializationRule[i].IsArray, nameRules[i].IsArray);
-
-                Assert.AreEqual(expectedSerializationRule[i].IsDynamic, idRules[i].IsDynamic);
-                Assert.AreEqual(expectedSerializationRule[i].IsDynamic, nameRules[i].IsDynamic);
+                Assert.AreEqual(expectedSerializationRule[i].IsDynamicArray, idRules[i].IsDynamicArray);
+                Assert.AreEqual(expectedSerializationRule[i].IsDynamicArray, nameRules[i].IsDynamicArray);
             }
         }
 
@@ -59,32 +56,30 @@ namespace RevolveUavcanTest.Uavcan
             uint subjectIdPid = 0;
             var compoundTypePid = new CompoundType(fullNamePid,
                 MessageType.MESSAGE,
-                @"TestFiles/TestDsdl/control/PIDControl.1.0.uavcan",
                 subjectIdPid,
-                new System.Tuple<int, int>(1, 0),
-                File.ReadAllText(@"TestFiles/TestDsdl/control/PIDControl.1.0.uavcan"));
+                new System.Tuple<int, int>(1, 0));
 
-            compoundTypePid.requestFields.Add(new Field(new PrimitiveType(BaseType.FLOAT, 32, CastMode.SATURATED), "p_term"));
-            compoundTypePid.requestFields.Add(new Field(new PrimitiveType(BaseType.FLOAT, 32, CastMode.SATURATED), "i_term"));
-            compoundTypePid.requestFields.Add(new Field(new PrimitiveType(BaseType.FLOAT, 32, CastMode.SATURATED), "d_term"));
+            compoundTypePid.RequestFields.Add(new Field(new PrimitiveType(BaseType.FLOAT, 32, CastMode.SATURATED), "p_term"));
+            compoundTypePid.RequestFields.Add(new Field(new PrimitiveType(BaseType.FLOAT, 32, CastMode.SATURATED), "i_term"));
+            compoundTypePid.RequestFields.Add(new Field(new PrimitiveType(BaseType.FLOAT, 32, CastMode.SATURATED), "d_term"));
 
 
             string fullNameCinco = "TestDsdl.common.cinco";
             uint subjectIdCinco = 60;
             CompoundType compoundTypeCinco = new CompoundType(fullNameCinco,
                 MessageType.MESSAGE,
-                @"TestFiles/TestDsdl/common/60.cinco.1.0.uavcan",
                 subjectIdCinco,
-                new System.Tuple<int, int>(1, 0),
-                File.ReadAllText(@"TestFiles/TestDsdl/common/60.cinco.1.0.uavcan"));
-            compoundTypeCinco.requestFields.Add(new Field(new PrimitiveType(BaseType.SIGNED_INT, 3, CastMode.SATURATED), "a"));
-            compoundTypeCinco.requestFields.Add(new Field(new PrimitiveType(BaseType.UNSIGNED_INT, 3, CastMode.SATURATED), "b"));
-            compoundTypeCinco.requestFields.Add(new Field(new PrimitiveType(BaseType.FLOAT, 32, CastMode.SATURATED), "c"));
-            compoundTypeCinco.requestFields.Add(new Field(new PrimitiveType(BaseType.FLOAT, 64, CastMode.SATURATED), "d"));
-            compoundTypeCinco.requestFields.Add(new Field(new VoidType(16), ""));
-            compoundTypeCinco.requestFields.Add(new Field(new PrimitiveType(BaseType.BOOLEAN, 1, CastMode.SATURATED), "f"));
-            compoundTypeCinco.requestFields.Add(new Field(new ArrayType(new PrimitiveType(BaseType.UNSIGNED_INT, 8, CastMode.SATURATED), ArrayMode.STATIC, 3), "g"));
-            compoundTypeCinco.requestFields.Add(new Field(new ArrayType(compoundTypePid, ArrayMode.STATIC, 2), "h"));
+                new System.Tuple<int, int>(1, 0)
+            );
+
+            compoundTypeCinco.RequestFields.Add(new Field(new PrimitiveType(BaseType.SIGNED_INT, 3, CastMode.SATURATED), "a"));
+            compoundTypeCinco.RequestFields.Add(new Field(new PrimitiveType(BaseType.UNSIGNED_INT, 3, CastMode.SATURATED), "b"));
+            compoundTypeCinco.RequestFields.Add(new Field(new PrimitiveType(BaseType.FLOAT, 32, CastMode.SATURATED), "c"));
+            compoundTypeCinco.RequestFields.Add(new Field(new PrimitiveType(BaseType.FLOAT, 64, CastMode.SATURATED), "d"));
+            compoundTypeCinco.RequestFields.Add(new Field(new VoidType(16), ""));
+            compoundTypeCinco.RequestFields.Add(new Field(new PrimitiveType(BaseType.BOOLEAN, 1, CastMode.SATURATED), "f"));
+            compoundTypeCinco.RequestFields.Add(new Field(new ArrayType(new PrimitiveType(BaseType.UNSIGNED_INT, 8, CastMode.SATURATED), ArrayMode.STATIC, 3), "g"));
+            compoundTypeCinco.RequestFields.Add(new Field(new ArrayType(compoundTypePid, ArrayMode.STATIC, 2), "h"));
 
             List<UavcanChannel> expectedRuleCinco = new List<UavcanChannel>();
             expectedRuleCinco.Add(new UavcanChannel(BaseType.SIGNED_INT, 3, "TestDsdl.common.cinco.a"));
@@ -110,14 +105,12 @@ namespace RevolveUavcanTest.Uavcan
             uint subjectIdMzRef = 136;
             var compoundTypeMzRef = new CompoundType(fullNameMzRef,
                 MessageType.MESSAGE,
-                @"TestFiles/TestDsdl/control/136.MzRefDebug.1.0.uavcan",
                 subjectIdMzRef,
-                new System.Tuple<int, int>(1, 0),
-                File.ReadAllText(@"TestFiles/TestDsdl/control/136.MzRefDebug.1.0.uavcan"));
+                new System.Tuple<int, int>(1, 0));
 
-            compoundTypeMzRef.requestFields.Add(new Field(compoundTypePid, "closed_loop_pid"));
-            compoundTypeMzRef.requestFields.Add(new Field(new PrimitiveType(BaseType.FLOAT, 32, CastMode.SATURATED), "closed_loop_yaw_ref"));
-            compoundTypeMzRef.requestFields.Add(new Field(compoundTypePid, "open_loop_pid"));
+            compoundTypeMzRef.RequestFields.Add(new Field(compoundTypePid, "closed_loop_pid"));
+            compoundTypeMzRef.RequestFields.Add(new Field(new PrimitiveType(BaseType.FLOAT, 32, CastMode.SATURATED), "closed_loop_yaw_ref"));
+            compoundTypeMzRef.RequestFields.Add(new Field(compoundTypePid, "open_loop_pid"));
 
 
             var expectedRuleMzRef = new List<UavcanChannel>();
@@ -157,13 +150,11 @@ namespace RevolveUavcanTest.Uavcan
             uint subjectId = 35;
             CompoundType compoundType = new CompoundType(fullName,
                 MessageType.SERVICE,
-                @"TestFiles/TestDsdl/dashboard/35.RTDS.1.0.uavcan",
                 subjectId,
-                new System.Tuple<int, int>(1, 0),
-                File.ReadAllText(@"TestFiles/TestDsdl/dashboard/35.RTDS.1.0.uavcan"));
+                new System.Tuple<int, int>(1, 0));
 
-            compoundType.requestFields.Add(new Field(new PrimitiveType(BaseType.UNSIGNED_INT, 8, CastMode.SATURATED), "command"));
-            compoundType.responseFields.Add(new Field(new PrimitiveType(BaseType.UNSIGNED_INT, 8, CastMode.SATURATED), "success"));
+            compoundType.RequestFields.Add(new Field(new PrimitiveType(BaseType.UNSIGNED_INT, 8, CastMode.SATURATED), "command"));
+            compoundType.ResponseFields.Add(new Field(new PrimitiveType(BaseType.UNSIGNED_INT, 8, CastMode.SATURATED), "success"));
 
             List<UavcanChannel> expectedRuleRequest = new List<UavcanChannel>() {
                 new UavcanChannel(BaseType.UNSIGNED_INT, 8, "TestDsdl.dashboard.RTDS.command")
@@ -190,9 +181,7 @@ namespace RevolveUavcanTest.Uavcan
 
                 Assert.AreEqual(expected[i].Basetype, actual[i].Basetype);
 
-                Assert.AreEqual(expected[i].IsArray, actual[i].IsArray);
-
-                Assert.AreEqual(expected[i].IsDynamic, actual[i].IsDynamic);
+                Assert.AreEqual(expected[i].IsDynamicArray, actual[i].IsDynamicArray);
             }
         }
     }

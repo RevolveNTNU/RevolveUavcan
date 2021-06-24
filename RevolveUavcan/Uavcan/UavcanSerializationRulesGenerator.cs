@@ -91,12 +91,12 @@ namespace RevolveUavcan.Uavcan
         /// <returns></returns>
         private void GenerateSerializationRulesForAllDsdl()
         {
-            foreach (var key in DsdlParser.ParsedDsdlDict.Keys.Where(key => DsdlParser.ParsedDsdlDict[key].defaultDataTypeID != 0))
+            foreach (var key in DsdlParser.ParsedDsdlDict.Keys.Where(key => DsdlParser.ParsedDsdlDict[key].SubjectId != 0))
             {
                 var compoundType = DsdlParser.ParsedDsdlDict[key];
 
-                var combinedKey = new Tuple<uint, string>(compoundType.defaultDataTypeID, key);
-                if (compoundType.messageType == MessageType.MESSAGE)
+                var combinedKey = new Tuple<uint, string>(compoundType.SubjectId, key);
+                if (compoundType.MessageType == MessageType.MESSAGE)
                 {
                     MessageSerializationRules.Add(combinedKey, GenerateSerializationRulesForType(compoundType, false, key));
                 }
@@ -105,7 +105,7 @@ namespace RevolveUavcan.Uavcan
                     var reqFields = GenerateSerializationRulesForType(compoundType, false, key);
                     var resFields = GenerateSerializationRulesForType(compoundType, true, key);
                     ServiceSerializationRules.Add(combinedKey,
-                        new UavcanService(reqFields, resFields, compoundType.defaultDataTypeID,
+                        new UavcanService(reqFields, resFields, compoundType.SubjectId,
                             compoundType.FullName));
                 }
             }
@@ -120,7 +120,7 @@ namespace RevolveUavcan.Uavcan
         /// <returns></returns>
         private List<UavcanChannel> GenerateSerializationRulesForType(CompoundType type, bool responseNotRequest = false, string parentName = "")
         {
-            var fieldList = responseNotRequest ? type.responseFields : type.requestFields;
+            var fieldList = responseNotRequest ? type.ResponseFields : type.RequestFields;
 
             var outList = new List<UavcanChannel>();
             foreach (Field field in fieldList)
@@ -144,12 +144,12 @@ namespace RevolveUavcan.Uavcan
                         {
                             if (primitiveType != null)
                             {
-                                outList.Add(new UavcanChannel(primitiveType.baseType,
+                                outList.Add(new UavcanChannel(primitiveType.BaseType,
                                     primitiveType.GetMaxBitLength(),
                                     ((parentName != "")
                                         ? (parentName + "." + field.name)
                                         : (field.name)),
-                                    true, arrayType.maxSize, true));
+                                    arrayType.maxSize, true));
                             }
                         }
                         else
@@ -158,7 +158,7 @@ namespace RevolveUavcan.Uavcan
                             {
                                 if (primitiveType != null)
                                 {
-                                    outList.Add(new UavcanChannel(primitiveType.baseType,
+                                    outList.Add(new UavcanChannel(primitiveType.BaseType,
                                         primitiveType.GetMaxBitLength(),
                                         (parentName != "" ? (parentName + "." + field.name) : (field.name)) +
                                         "_" + i));
@@ -189,7 +189,7 @@ namespace RevolveUavcan.Uavcan
 
                     if (field.type is PrimitiveType primitiveType)
                     {
-                        outList.Add(new UavcanChannel(primitiveType.baseType, primitiveType.GetMaxBitLength(),
+                        outList.Add(new UavcanChannel(primitiveType.BaseType, primitiveType.GetMaxBitLength(),
                             fieldName));
                     }
                 }

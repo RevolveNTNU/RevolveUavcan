@@ -33,20 +33,20 @@ namespace RevolveUavcanTest.Dsdl
             Assert.AreEqual("TestDsdl.PitotTube", result.FullName);
 
             // Verify fields and constants
-            Assert.AreEqual(2, result.requestFields.Count);
-            Assert.AreEqual(0, result.responseFields.Count);
-            Assert.AreEqual(2, result.requestConstants.Count);
-            Assert.AreEqual(0, result.responseConstants.Count);
+            Assert.AreEqual(2, result.RequestFields.Count);
+            Assert.AreEqual(0, result.ResponseFields.Count);
+            Assert.AreEqual(2, result.RequestConstants.Count);
+            Assert.AreEqual(0, result.ResponseConstants.Count);
 
-            Assert.AreEqual("pressure_delta", result.requestFields[0].name);
-            Assert.AreEqual("error_bf", result.requestFields[1].name);
+            Assert.AreEqual("pressure_delta", result.RequestFields[0].name);
+            Assert.AreEqual("error_bf", result.RequestFields[1].name);
 
-            Assert.AreEqual("ERROR_PRESSURE_DELTA_OFFSET", result.requestConstants[0].name);
-            Assert.AreEqual("0", result.requestConstants[0].StringValue);
-            Assert.AreEqual("ERROR_BITMASK", result.requestConstants[1].name);
-            Assert.AreEqual("15", result.requestConstants[1].StringValue);
+            Assert.AreEqual("ERROR_PRESSURE_DELTA_OFFSET", result.RequestConstants[0].name);
+            Assert.AreEqual("0", result.RequestConstants[0].StringValue);
+            Assert.AreEqual("ERROR_BITMASK", result.RequestConstants[1].name);
+            Assert.AreEqual("15", result.RequestConstants[1].StringValue);
 
-            var pressureDeltaField = result.requestFields[0];
+            var pressureDeltaField = result.RequestFields[0];
 
             Assert.AreEqual("saturated float", pressureDeltaField.type.FullName);
             Assert.AreEqual(Category.PRIMITIVE, pressureDeltaField.type.Category);
@@ -68,16 +68,16 @@ namespace RevolveUavcanTest.Dsdl
             Assert.AreEqual("TestDsdl.control.MzRefDebug", result.FullName);
 
             // Verify fields and constants
-            Assert.AreEqual(3, result.requestFields.Count);
-            Assert.AreEqual(0, result.responseFields.Count);
-            Assert.AreEqual(0, result.requestConstants.Count);
-            Assert.AreEqual(0, result.responseConstants.Count);
+            Assert.AreEqual(3, result.RequestFields.Count);
+            Assert.AreEqual(0, result.ResponseFields.Count);
+            Assert.AreEqual(0, result.RequestConstants.Count);
+            Assert.AreEqual(0, result.ResponseConstants.Count);
 
-            Assert.AreEqual("closed_loop_pid", result.requestFields[0].name);
-            Assert.AreEqual("closed_loop_yaw_ref", result.requestFields[1].name);
-            Assert.AreEqual("open_loop_pid", result.requestFields[2].name);
+            Assert.AreEqual("closed_loop_pid", result.RequestFields[0].name);
+            Assert.AreEqual("closed_loop_yaw_ref", result.RequestFields[1].name);
+            Assert.AreEqual("open_loop_pid", result.RequestFields[2].name);
 
-            foreach (var field in result.requestFields)
+            foreach (var field in result.RequestFields)
             {
                 if (field.name != "closed_loop_yaw_ref")
                 {
@@ -99,11 +99,11 @@ namespace RevolveUavcanTest.Dsdl
 
             Assert.IsTrue(parser.ParsedDsdlDict.TryGetValue("TestDsdl.control.PIDControl", out var pidControl));
 
-            Assert.AreEqual(3, pidControl.requestFields.Count);
-            Assert.AreEqual(0, pidControl.responseFields.Count);
+            Assert.AreEqual(3, pidControl.RequestFields.Count);
+            Assert.AreEqual(0, pidControl.ResponseFields.Count);
 
             var pidFields = new List<string> { "p_term", "i_term", "d_term" };
-            foreach (var field in pidControl.requestFields)
+            foreach (var field in pidControl.RequestFields)
             {
                 Assert.IsTrue(pidFields.Contains(field.name));
             }
@@ -122,27 +122,27 @@ namespace RevolveUavcanTest.Dsdl
             Assert.AreEqual("TestDsdl.dashboard.RTDS", result.FullName);
 
             // Verify fields and constants
-            Assert.AreEqual(1, result.requestFields.Count);
-            Assert.AreEqual(1, result.responseFields.Count);
-            Assert.AreEqual(2, result.requestConstants.Count);
-            Assert.AreEqual(0, result.responseConstants.Count);
+            Assert.AreEqual(1, result.RequestFields.Count);
+            Assert.AreEqual(1, result.ResponseFields.Count);
+            Assert.AreEqual(2, result.RequestConstants.Count);
+            Assert.AreEqual(0, result.ResponseConstants.Count);
 
-            Assert.AreEqual("command", result.requestFields[0].name);
-            Assert.AreEqual("success", result.responseFields[0].name);
+            Assert.AreEqual("command", result.RequestFields[0].name);
+            Assert.AreEqual("success", result.ResponseFields[0].name);
 
-            Assert.AreEqual("PLAY", result.requestConstants[0].name);
-            Assert.AreEqual("0", result.requestConstants[0].StringValue);
-            Assert.AreEqual("FINISHED", result.requestConstants[1].name);
-            Assert.AreEqual("1", result.requestConstants[1].StringValue);
+            Assert.AreEqual("PLAY", result.RequestConstants[0].name);
+            Assert.AreEqual("0", result.RequestConstants[0].StringValue);
+            Assert.AreEqual("FINISHED", result.RequestConstants[1].name);
+            Assert.AreEqual("1", result.RequestConstants[1].StringValue);
 
-            var command = result.requestFields[0];
+            var command = result.RequestFields[0];
 
             Assert.AreEqual("saturated uint", command.type.FullName);
             Assert.AreEqual(Category.PRIMITIVE, command.type.Category);
             Assert.AreEqual(false, command.isConstant);
             Assert.AreEqual(8, command.type.GetMaxBitLength());
 
-            var success = result.responseFields[0];
+            var success = result.ResponseFields[0];
 
             Assert.AreEqual("saturated uint", success.type.FullName);
             Assert.AreEqual(Category.PRIMITIVE, success.type.Category);

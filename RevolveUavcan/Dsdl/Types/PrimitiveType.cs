@@ -17,7 +17,7 @@ namespace RevolveUavcan.Dsdl.Types
     /// </summary>
     public class PrimitiveType : DsdlType
     {
-        public BaseType baseType;
+        public BaseType BaseType { get; set; }
         private readonly int bitLength;
         private readonly CastMode castMode;
         private readonly Tuple<double, double> valueRange;
@@ -33,13 +33,13 @@ namespace RevolveUavcan.Dsdl.Types
         public PrimitiveType(BaseType baseType, int bitLength, CastMode castMode) :
                         base(GetNormalizedDefinition(castMode, baseType), Category.PRIMITIVE)
         {
-            this.baseType = baseType;
+            BaseType = baseType;
             this.bitLength = bitLength;
             this.castMode = castMode;
             valueRange = TypeLimits.getRange(baseType, bitLength);
         }
 
-        public override string ToString() => GetNormalizedDefinition(castMode, baseType);
+        public override string ToString() => GetNormalizedDefinition(castMode, BaseType);
 
         public override int GetMaxBitLength() => bitLength;
 

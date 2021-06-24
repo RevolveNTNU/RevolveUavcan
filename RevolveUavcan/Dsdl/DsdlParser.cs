@@ -139,7 +139,7 @@ namespace RevolveUavcan.Dsdl
                 var respConstants = new List<Constant>();
                 var union = false;
                 var respUnion = false;
-                var responsePart = false;
+                var hasResponsePart = false;
 
                 var messageSize = 0;
                 var responseSize = 0;
@@ -152,19 +152,19 @@ namespace RevolveUavcan.Dsdl
                     {
                         if (line[0] == "---" && line.Count == 1)
                         {
-                            if (responsePart)
+                            if (hasResponsePart)
                             {
                                 throw new DsdlException("A file can only have 1 responsepart", filename);
                             }
 
-                            responsePart = true;
+                            hasResponsePart = true;
                             allAttributeNames = new Set<string>();
                             continue;
                         }
 
                         if (line[0] == "@union" && line.Count == 1)
                         {
-                            if (responsePart)
+                            if (hasResponsePart)
                             {
                                 respUnion = true;
                             }
@@ -200,7 +200,7 @@ namespace RevolveUavcan.Dsdl
 
                         if (attr.isConstant)
                         {
-                            if (responsePart)
+                            if (hasResponsePart)
                             {
                                 respConstants.Add(attr as Constant);
                             }
@@ -211,7 +211,7 @@ namespace RevolveUavcan.Dsdl
                         }
                         else
                         {
-                            if (responsePart)
+                            if (hasResponsePart)
                             {
                                 // Adds the field to the Response Fields in this UAVCAN message
                                 // Padding is added according to the serialisation rules in the
@@ -282,24 +282,26 @@ namespace RevolveUavcan.Dsdl
 
                 CompoundType t;
 
-                if (responsePart)
+                if (hasResponsePart)
                 {
-                    t = new CompoundType(fullTypeName, MessageType.SERVICE, filename, defaultDtid, version,
-                        sourceText)
+                    t = new CompoundType(fullTypeName, MessageType.SERVICE, defaultDtid, version)
                     {
-                        requestFields = fields,
-                        requestConstants = constants,
-                        responseFields = respFields,
-                        responseConstants = respConstants,
-                        requestUnion = union,
-                        responseUnion = respUnion
+                        RequestFields = fields,
+                        RequestConstants = constants,
+                        ResponseFields = respFields,
+                        ResponseConstants = respConstants,
+                        RequestUnion = union,
+                        ResponseUnion = respUnion
                     };
                 }
                 else
                 {
-                    t = new CompoundType(fullTypeName, MessageType.MESSAGE, filename, defaultDtid, version,
-                        sourceText)
-                    { requestFields = fields, requestConstants = constants, requestUnion = union };
+                    t = new CompoundType(fullTypeName, MessageType.MESSAGE, defaultDtid, version)
+                    {
+                        RequestFields = fields,
+                        RequestConstants = constants,
+                        RequestUnion = union
+                    };
                 }
 
                 return t;
@@ -397,7 +399,7 @@ namespace RevolveUavcan.Dsdl
             PrimitiveType type = attrType as PrimitiveType;
 
             expression = string.Join("", expression.Split());
-            ExpandoObject value = EvaluateExpression(expression, type.baseType);
+            ExpandoObject value = EvaluateExpression(expression, type.BaseType);
             return new Constant(type, name, value, expression);
         }
 
@@ -510,7 +512,7 @@ namespace RevolveUavcan.Dsdl
                 ParsedDsdlDict.Add(type.FullName, type);
             }
 
-            if (type.messageType == MessageType.MESSAGE)
+            if (type.MessageType == MessageType.MESSAGE)
             {
                 return type;
             }

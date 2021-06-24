@@ -13,33 +13,31 @@ namespace RevolveUavcan.Dsdl.Types
 
     public class CompoundType : DsdlType
     {
-        public MessageType messageType;
-        private readonly string sourceFile;
-        public uint defaultDataTypeID;
-        private readonly Tuple<int, int> version;
-        private readonly string sourceText;
 
-        public List<Field> requestFields;
-        public List<Field> responseFields;
-        public List<Constant> requestConstants;
-        public List<Constant> responseConstants;
 
-        public bool responseUnion = false;
-        public bool requestUnion = false;
+        public Tuple<int, int> Version { get; set; }
 
-        public CompoundType(string fullName, MessageType messageType, string sourceFile, uint defaultDataTypeID,
-                        Tuple<int, int> version, string sourceText) : base(fullName, Category.COMPOUND)
+        public List<Field> RequestFields { get; set; }
+        public List<Field> ResponseFields { get; set; }
+        public List<Constant> RequestConstants { get; set; }
+        public List<Constant> ResponseConstants { get; set; }
+        public MessageType MessageType { get; set; }
+        public uint SubjectId { get; set; }
+
+        public bool ResponseUnion { get; set; } = false;
+        public bool RequestUnion { get; set; } = false;
+
+        public CompoundType(string fullName, MessageType messageType, uint subjectId,
+                                Tuple<int, int> version) : base(fullName, Category.COMPOUND)
         {
-            this.messageType = messageType;
-            this.sourceFile = sourceFile;
-            this.defaultDataTypeID = defaultDataTypeID;
-            this.version = version;
-            this.sourceText = sourceText;
+            MessageType = messageType;
+            SubjectId = subjectId;
+            Version = version;
 
-            requestFields = new List<Field>();
-            responseFields = new List<Field>();
-            requestConstants = new List<Constant>();
-            responseConstants = new List<Constant>();
+            RequestFields = new List<Field>();
+            ResponseFields = new List<Field>();
+            RequestConstants = new List<Constant>();
+            ResponseConstants = new List<Constant>();
         }
 
         private int computeMaxLen(List<Field> fields, bool union)
@@ -85,13 +83,13 @@ namespace RevolveUavcan.Dsdl.Types
 
         public override string ToString() => throw new System.NotImplementedException();
 
-        public int GetMaxBitLengthRequest() => computeMaxLen(requestFields, requestUnion);
+        public int GetMaxBitLengthRequest() => computeMaxLen(RequestFields, RequestUnion);
 
-        public int GetMaxBitLengthResponse() => computeMaxLen(responseFields, responseUnion);
+        public int GetMaxBitLengthResponse() => computeMaxLen(ResponseFields, ResponseUnion);
 
-        public int GetMinBitLengthRequest() => computeMinLen(requestFields, requestUnion);
+        public int GetMinBitLengthRequest() => computeMinLen(RequestFields, RequestUnion);
 
-        public int GetMinBitLengthResponse() => computeMinLen(responseFields, responseUnion);
+        public int GetMinBitLengthResponse() => computeMinLen(ResponseFields, ResponseUnion);
 
         public override int GetMinBitLength() => GetMinBitLengthRequest();
 
