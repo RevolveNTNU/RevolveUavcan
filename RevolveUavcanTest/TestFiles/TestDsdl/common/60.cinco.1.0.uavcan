@@ -8,3 +8,4 @@ float64 d
 void16
 bool f
 uint8[3] g
+TestDsdl.control.PIDControl.1.0[2] h

@@ -170,11 +170,11 @@ namespace RevolveUavcan.Uavcan
                     {
                         if (arrayType.dataType is CompoundType compoundType)
                         {
-                            var flattened = GenerateSerializationRulesForType(compoundType, false, compoundType.FullName);
                             for (int i = 0; i < arrayType.maxSize; i++)
                             {
-                                outList.AddRange(flattened.Select(channel => new UavcanChannel(channel.Basetype,
-                                    channel.Size, compoundType.FullName + channel.FieldName + "." + i)));
+                                var compoundRule = GenerateSerializationRulesForType(compoundType, false, $"{parentName}.{field.name}_{i}");
+                                outList.AddRange(compoundRule.Select(channel => new UavcanChannel(channel.Basetype,
+                                    channel.Size, channel.FieldName)));
                             }
                         }
                     }

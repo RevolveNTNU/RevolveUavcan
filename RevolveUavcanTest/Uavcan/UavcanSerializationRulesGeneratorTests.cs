@@ -50,11 +50,25 @@ namespace RevolveUavcanTest.Uavcan
                 Assert.AreEqual(expectedSerializationRule[i].IsDynamic, idRules[i].IsDynamic);
                 Assert.AreEqual(expectedSerializationRule[i].IsDynamic, nameRules[i].IsDynamic);
             }
-
         }
 
         public static IEnumerable<object[]> GetDsdlAndResult()
         {
+            // Compound type that is not a message
+            string fullNamePid = "TestDsdl.control.PIDControl";
+            uint subjectIdPid = 0;
+            var compoundTypePid = new CompoundType(fullNamePid,
+                MessageType.MESSAGE,
+                @"TestFiles/TestDsdl/control/PIDControl.1.0.uavcan",
+                subjectIdPid,
+                new System.Tuple<int, int>(1, 0),
+                File.ReadAllText(@"TestFiles/TestDsdl/control/PIDControl.1.0.uavcan"));
+
+            compoundTypePid.requestFields.Add(new Field(new PrimitiveType(BaseType.FLOAT, 32, CastMode.SATURATED), "p_term"));
+            compoundTypePid.requestFields.Add(new Field(new PrimitiveType(BaseType.FLOAT, 32, CastMode.SATURATED), "i_term"));
+            compoundTypePid.requestFields.Add(new Field(new PrimitiveType(BaseType.FLOAT, 32, CastMode.SATURATED), "d_term"));
+
+
             string fullNameCinco = "TestDsdl.common.cinco";
             uint subjectIdCinco = 60;
             CompoundType compoundTypeCinco = new CompoundType(fullNameCinco,
@@ -70,6 +84,7 @@ namespace RevolveUavcanTest.Uavcan
             compoundTypeCinco.requestFields.Add(new Field(new VoidType(16), ""));
             compoundTypeCinco.requestFields.Add(new Field(new PrimitiveType(BaseType.BOOLEAN, 1, CastMode.SATURATED), "f"));
             compoundTypeCinco.requestFields.Add(new Field(new ArrayType(new PrimitiveType(BaseType.UNSIGNED_INT, 8, CastMode.SATURATED), ArrayMode.STATIC, 3), "g"));
+            compoundTypeCinco.requestFields.Add(new Field(new ArrayType(compoundTypePid, ArrayMode.STATIC, 2), "h"));
 
             List<UavcanChannel> expectedRuleCinco = new List<UavcanChannel>();
             expectedRuleCinco.Add(new UavcanChannel(BaseType.SIGNED_INT, 3, "TestDsdl.common.cinco.a"));
@@ -81,22 +96,14 @@ namespace RevolveUavcanTest.Uavcan
             expectedRuleCinco.Add(new UavcanChannel(BaseType.UNSIGNED_INT, 8, "TestDsdl.common.cinco.g_0"));
             expectedRuleCinco.Add(new UavcanChannel(BaseType.UNSIGNED_INT, 8, "TestDsdl.common.cinco.g_1"));
             expectedRuleCinco.Add(new UavcanChannel(BaseType.UNSIGNED_INT, 8, "TestDsdl.common.cinco.g_2"));
+            expectedRuleCinco.Add(new UavcanChannel(BaseType.FLOAT, 32, "TestDsdl.common.cinco.h_0.p_term"));
+            expectedRuleCinco.Add(new UavcanChannel(BaseType.FLOAT, 32, "TestDsdl.common.cinco.h_0.i_term"));
+            expectedRuleCinco.Add(new UavcanChannel(BaseType.FLOAT, 32, "TestDsdl.common.cinco.h_0.d_term"));
+            expectedRuleCinco.Add(new UavcanChannel(BaseType.FLOAT, 32, "TestDsdl.common.cinco.h_1.p_term"));
+            expectedRuleCinco.Add(new UavcanChannel(BaseType.FLOAT, 32, "TestDsdl.common.cinco.h_1.i_term"));
+            expectedRuleCinco.Add(new UavcanChannel(BaseType.FLOAT, 32, "TestDsdl.common.cinco.h_1.d_term"));
 
             yield return new object[] { new Dictionary<string, CompoundType> { { fullNameCinco, compoundTypeCinco } }, subjectIdCinco, fullNameCinco, expectedRuleCinco };
-
-            // Compound type that is not a message
-            string fullNamePid = "TestDsdl.control.PIDControl";
-            uint subjectIdPid = 0;
-            var compoundTypePid = new CompoundType(fullNamePid,
-                MessageType.MESSAGE,
-                @"TestFiles/TestDsdl/control/PIDControl.1.0.uavcan",
-                subjectIdPid,
-                new System.Tuple<int, int>(1, 0),
-                File.ReadAllText(@"TestFiles/TestDsdl/control/PIDControl.1.0.uavcan"));
-
-            compoundTypePid.requestFields.Add(new Field(new PrimitiveType(BaseType.FLOAT, 32, CastMode.SATURATED), "p_term"));
-            compoundTypePid.requestFields.Add(new Field(new PrimitiveType(BaseType.FLOAT, 32, CastMode.SATURATED), "i_term"));
-            compoundTypePid.requestFields.Add(new Field(new PrimitiveType(BaseType.FLOAT, 32, CastMode.SATURATED), "d_term"));
 
             // A compound type which has a compound type as field
             string fullNameMzRef = "TestDsdl.control.MzRefDebug";
