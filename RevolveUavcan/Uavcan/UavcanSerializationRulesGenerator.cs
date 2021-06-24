@@ -17,10 +17,10 @@ namespace RevolveUavcan.Uavcan
         public Dictionary<Tuple<uint, string>, UavcanService> ServiceSerializationRules { get; private set; }
 
         private Dictionary<string, CompoundType> _parsedDsdl;
-
-        public UavcanSerializationRulesGenerator(Dictionary<string, CompoundType> parsedDsdl)
+        private IDsdlParser _dsdlParser;
+        public UavcanSerializationRulesGenerator(IDsdlParser dsdlParser)
         {
-            _parsedDsdl = parsedDsdl;
+            _dsdlParser = dsdlParser;
 
             MessageSerializationRules = new Dictionary<Tuple<uint, string>, List<UavcanChannel>>();
             ServiceSerializationRules = new Dictionary<Tuple<uint, string>, UavcanService>();
@@ -30,6 +30,7 @@ namespace RevolveUavcan.Uavcan
         {
             try
             {
+                _parsedDsdl = _dsdlParser.ParseAllDirectories();
                 GenerateSerializationRulesForAllDsdl();
                 return true;
             }

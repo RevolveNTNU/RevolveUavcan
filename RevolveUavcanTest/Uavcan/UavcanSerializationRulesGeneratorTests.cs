@@ -4,6 +4,7 @@ using RevolveUavcan.Dsdl.Types;
 using RevolveUavcan.Uavcan;
 using System.IO;
 using RevolveUavcan.Dsdl.Fields;
+using RevolveUavcan.Dsdl;
 
 namespace RevolveUavcanTest.Uavcan
 {
@@ -15,7 +16,9 @@ namespace RevolveUavcanTest.Uavcan
         [DeploymentItem("60.cinco.1.0.uavcan", "TestFiles/TestDsdl/common")]
         public void GenerateSingleMessageSerializationRule(Dictionary<string, CompoundType> dsdlDict, uint expectedSubjectId, string expectedMessageName, List<UavcanChannel> expectedSerializationRule)
         {
-            var rulesGenerator = new UavcanSerializationRulesGenerator(dsdlDict);
+            var dsdlParser = new Moq.Mock<IDsdlParser>();
+            dsdlParser.Setup(d => d.ParseAllDirectories()).Returns(dsdlDict);
+            var rulesGenerator = new UavcanSerializationRulesGenerator(dsdlParser.Object);
             Assert.IsTrue(rulesGenerator.Init());
 
             Assert.IsTrue(rulesGenerator.TryGetSerializationRuleForMessage(expectedSubjectId, out var idRules));
@@ -125,7 +128,9 @@ namespace RevolveUavcanTest.Uavcan
         [DynamicData(nameof(GetDsdlAndResultForService), DynamicDataSourceType.Method)]
         public void GenerateSingleServiceSerializationRule(Dictionary<string, CompoundType> dsdlDict, uint expectedSubjectId, string expectedServiceName, List<UavcanChannel> expectedRequestSerializationRule, List<UavcanChannel> expectedResponseSerializationRule)
         {
-            var rulesGenerator = new UavcanSerializationRulesGenerator(dsdlDict);
+            var dsdlParser = new Moq.Mock<IDsdlParser>();
+            dsdlParser.Setup(d => d.ParseAllDirectories()).Returns(dsdlDict);
+            var rulesGenerator = new UavcanSerializationRulesGenerator(dsdlParser.Object);
             Assert.IsTrue(rulesGenerator.Init());
 
             Assert.IsTrue(rulesGenerator.TryGetSerializationRuleForService(expectedSubjectId, out var idRules));
