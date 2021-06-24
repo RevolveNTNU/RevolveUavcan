@@ -1,0 +1,9 @@
+#
+#       Generic Debug Message # 5
+#
+int3 a
+uint3 b
+float32 c
+float64 d
+void16
+bool f

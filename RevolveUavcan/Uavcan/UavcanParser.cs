@@ -2,11 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using NLog;
-using RevolveUavcan.Dsdl;
 using RevolveUavcan.Dsdl.Fields;
 using RevolveUavcan.Dsdl.Types;
-using RevolveUavcan.Telemetry;
-using RevolveUavcan.Telemetry.DataPackets;
+using RevolveUavcan.Communication.DataPackets;
 using RevolveUavcan.Tools;
 
 namespace RevolveUavcan.Uavcan
@@ -14,7 +12,7 @@ namespace RevolveUavcan.Uavcan
     public class UavcanParser : IUavcanParser
     {
         private readonly ILogger _logger;
-        private readonly DsdlRuleGenerator _dsdlRuleGenerator;
+        private readonly UavcanSerializationRulesGenerator _uavcanSerializationRulesGenerator;
         private List<uint> _invalidMessageIds = new List<uint>();
         private List<uint> _invalidServiceIds = new List<uint>();
 
@@ -22,15 +20,15 @@ namespace RevolveUavcan.Uavcan
         public event EventHandler<UavcanDataPacket> UavcanServiceParsed;
 
         /// <summary>
-        /// Constructor for UAVCAN Parser. Registers the dsdl rules and subscribes to the framestorage
+        /// Constructor for UAVCAN Parser. Registers the serialization rules and subscribes to the framestorage
         /// </summary>
         /// <param name="logger">Logger used for log output</param>
-        /// <param name="dsdlRuleGenerator">DSDL rules to be used in parsing and serialising</param>
+        /// <param name="uavcanSerializationRuleGenerator">Serialization rules to be used in parsing and serialising</param>
         /// <param name="frameStorage">Framestorage that will provide frames to be parsed</param>
-        public UavcanParser(ILogger logger, DsdlRuleGenerator dsdlRuleGenerator, FrameStorage frameStorage)
+        public UavcanParser(ILogger logger, UavcanSerializationRulesGenerator uavcanSerializationRuleGenerator, UavcanFrameStorage frameStorage)
         {
             _logger = logger;
-            _dsdlRuleGenerator = dsdlRuleGenerator;
+            _uavcanSerializationRulesGenerator = uavcanSerializationRuleGenerator;
             frameStorage.UavcanPacketReceived += ParseUavcanFrame;
         }
 
@@ -48,12 +46,8 @@ namespace RevolveUavcan.Uavcan
 
         private void ParseMessage(UavcanFrame frame)
         {
-            if (_dsdlRuleGenerator.MessageDataIdMap.TryGetValue(frame.SubjectId,
-                out var messageName))
+            if (_uavcanSerializationRulesGenerator.TryGetSerializationRuleForMessage(frame.SubjectId, out var uavcanChannels))
             {
-                var uavcanChannels =
-                    _dsdlRuleGenerator.FlattenedDsdlMessages[messageName];
-
                 var dataDictionary = ParseUavcanFrame(frame, uavcanChannels);
 
                 // Initialize packet
@@ -78,10 +72,7 @@ namespace RevolveUavcan.Uavcan
 
         private void ParseService(UavcanFrame frame)
         {
-            if (_dsdlRuleGenerator.ServiceDataIdMap.TryGetValue(frame.SubjectId,
-                    out var serviceName) &&
-                _dsdlRuleGenerator.FlattenedServices.TryGetValue(
-                    serviceName, out var uavcanService))
+            if (_uavcanSerializationRulesGenerator.TryGetSerializationRuleForService(frame.SubjectId, out var uavcanService))
             {
                 var uavcanChannels = frame.IsRequestNotResponse
                     ? uavcanService.RequestFields
@@ -122,7 +113,7 @@ namespace RevolveUavcan.Uavcan
                 {
                     var result = ParseUavcanChannel(bitArray, channel, bitOffset);
 
-                    var prefix = frame.IsServiceNotMessage ? (frame.IsRequestNotResponse ? DsdlRuleGenerator.REQUEST_PREFIX : DsdlRuleGenerator.RESPONSE_PREFIX) : "";
+                    var prefix = frame.IsServiceNotMessage ? (frame.IsRequestNotResponse ? UavcanSerializationRulesGenerator.REQUEST_PREFIX : UavcanSerializationRulesGenerator.RESPONSE_PREFIX) : "";
 
                     dataDictionary.Add(channel, result);
                 }

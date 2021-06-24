@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using NLog;
-using RevolveUavcan.Telemetry;
+using RevolveUavcan.Communication;
 
 namespace RevolveUavcan.Uavcan
 {
-    public class FrameStorage
+    public class UavcanFrameStorage
     {
 
         private readonly object _lock = new object();
@@ -18,7 +18,7 @@ namespace RevolveUavcan.Uavcan
         /// </summary>
         private readonly Dictionary<byte, Dictionary<uint, UavcanFrame>> _transferIdBuffer;
 
-        public FrameStorage(ILogger logger)
+        public UavcanFrameStorage(ILogger logger)
         {
             _logger = logger;
 

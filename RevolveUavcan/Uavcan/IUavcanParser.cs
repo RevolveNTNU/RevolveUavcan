@@ -1,7 +1,5 @@
-﻿using RevolveUavcan.Telemetry.DataPackets;
+﻿using RevolveUavcan.Communication.DataPackets;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace RevolveUavcan.Uavcan
 {
