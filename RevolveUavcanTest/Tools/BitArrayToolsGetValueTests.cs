@@ -64,7 +64,7 @@ namespace RevolveUavcanTest.Tools
 
 
         [DataTestMethod]
-        [DynamicData(nameof(GetIntInvalidData), DynamicDataSourceType.Method)]
+        [DynamicData(nameof(GetUIntInvalidData), DynamicDataSourceType.Method)]
         public void GetUIntInvalidArgsTest(BitArray bitArray)
         {
             Assert.ThrowsException<ArgumentException>(() => bitArray.GetIntFromBitArray());
