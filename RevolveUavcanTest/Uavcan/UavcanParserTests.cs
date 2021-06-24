@@ -28,7 +28,7 @@ namespace RevolveUavcanTest.Uavcan
 
         [DataTestMethod]
         [DynamicData(nameof(GetUavcanFrames), DynamicDataSourceType.Method)]
-        public void ParseUavcanFrameTest(UavcanFrame frame, List<UavcanChannel> serializationRule, uint subjectId, List<double> values)
+        public void ParseUavcanFrameMessageTest(UavcanFrame frame, List<UavcanChannel> serializationRule, uint subjectId, List<double> values)
         {
             rulesGeneratorMock.Setup(s => s.TryGetSerializationRuleForMessage(subjectId, out serializationRule)).Returns(true);
 
@@ -82,6 +82,57 @@ namespace RevolveUavcanTest.Uavcan
             subjectId = 60;
 
             yield return new object[] { new UavcanFrame() { Data = data, SubjectId = subjectId, IsServiceNotMessage = false }, serializationRules, subjectId, values };
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetUavcanServiceFrames), DynamicDataSourceType.Method)]
+        public void ParseUavcanFrameServiceTest(UavcanFrame frame, UavcanService service, List<UavcanChannel> serializationRule, uint subjectId, List<double> values)
+        {
+            rulesGeneratorMock.Setup(s => s.TryGetSerializationRuleForService(subjectId, out service)).Returns(true);
+
+            var parser = new UavcanParser(loggerMock.Object, rulesGeneratorMock.Object, frameStorage);
+
+            var packets = new List<UavcanDataPacket>();
+
+            parser.UavcanServiceParsed += delegate (object sender, UavcanDataPacket dataPacket)
+            {
+                packets.Add(dataPacket);
+            };
+
+            parser.ParseUavcanFrame(null, frame);
+
+            Assert.IsTrue(packets.Count == 1);
+
+            var parsedDataDict = packets.First().ParsedDataDict;
+
+            var valueIndex = 0;
+            foreach (var channel in serializationRule.FindAll(x => x.Basetype != RevolveUavcan.Dsdl.Types.BaseType.VOID))
+            {
+                Assert.AreEqual(parsedDataDict[channel], values[valueIndex], 0.0001);
+                valueIndex++;
+            }
+        }
+
+        public static IEnumerable<object[]> GetUavcanServiceFrames()
+        {
+            // Simple RTDS Service
+            var serializationRequestRules = new List<UavcanChannel> {
+                    new UavcanChannel(RevolveUavcan.Dsdl.Types.BaseType.SIGNED_INT, 8, "command")
+            };
+
+            var serializationResponseRules = new List<UavcanChannel> {
+                    new UavcanChannel(RevolveUavcan.Dsdl.Types.BaseType.SIGNED_INT, 8, "success")
+            };
+
+            var values = new List<double> { 1 };
+            var data = new byte[] { 1 };
+            uint subjectId = 35;
+
+            UavcanService service = new UavcanService(serializationRequestRules, serializationResponseRules, subjectId, "RTDS");
+
+            yield return new object[] { new UavcanFrame() { Data = data, SubjectId = subjectId, IsServiceNotMessage = true, IsRequestNotResponse = true }, service, serializationRequestRules, subjectId, values };
+
+            yield return new object[] { new UavcanFrame() { Data = data, SubjectId = subjectId, IsServiceNotMessage = true, IsRequestNotResponse = false }, service, serializationResponseRules, subjectId, values };
         }
     }
 }
