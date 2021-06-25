@@ -28,11 +28,5 @@ jobs:
           version=$(echo ${{ github.ref }}| cut -d'v' -f 2)
           # Ensure file is written in UTF8
           echo "::set-output name=version::$version"
-      - name: Publish NuGet
-        uses: brandedoutcast/publish-nuget@v2.5.5
-        with:
-          PROJECT_FILE_PATH: RevolveUavcan/RevolveUavcan.csproj
-          PACKAGE_NAME: RevolveUavcan
-          NUGET_KEY: ${{secrets.NUGET_API_KEY}}
-          TAG_COMMIT: false
-          VERSION_STATIC: ${{steps.get-version.outputs.version}}
+      - name: Create NuGet package  
+        run: dotnet pack -v normal -c Release --include-symbols --include-source -p:PackageVersion=${{steps.get-version.outputs.version}} -o nupkg RevolveUavcan/RevolveUavcan.*proj
