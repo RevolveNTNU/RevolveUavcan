@@ -4,6 +4,7 @@ using RevolveUavcan.Dsdl.Types;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -677,7 +678,7 @@ namespace RevolveUavcan.Dsdl
             switch (baseType)
             {
                 case BaseType.FLOAT:
-                    returnValue.value = float.Parse(expression.Replace(".", ","));
+                    returnValue.value = float.Parse(expression, CultureInfo.InvariantCulture.NumberFormat);
                     break;
                 case BaseType.SIGNED_INT:
                     if (baseSize != 10)
