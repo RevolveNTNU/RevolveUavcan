@@ -2,7 +2,8 @@ name: Build and Release NuGet package
 
 on:
   push:
-    branches: [ fix/release-on-tag ]
+    tags:
+      - "v*.*.*"
 
 jobs:
   publish:
@@ -21,10 +22,19 @@ jobs:
       - name: Build
         run: dotnet build --no-restore
 
+      - name: Extract version from tag
+        run: |
+          # remove the `refs/tags/v`
+          $Release_Version = "${{ github.ref }}".substring(11)
+          # Ensure file is written in UTF8
+          echo "RELEASE_VERSION=$Release_Version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+
       - name: Publish NuGet
         uses: brandedoutcast/publish-nuget@v2.5.5
         with:
           PROJECT_FILE_PATH: RevolveUavcan/RevolveUavcan.csproj
           PACKAGE_NAME: RevolveUavcan
           NUGET_KEY: ${{secrets.NUGET_API_KEY}}
-          TAG_FORMAT: v*
+          TAG_COMMIT: false
+          VERSION_STATIC: $env:RELEASE_VERSION
