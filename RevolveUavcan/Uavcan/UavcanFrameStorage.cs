@@ -43,8 +43,16 @@ namespace RevolveUavcan.Uavcan
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="frame">An instance of the UavcanFrame class</param>
-        private void StoreFrame(object sender, UavcanFrame frame)
+        public void StoreFrame(object sender, UavcanFrame frame)
         {
+            // Single frames can be passed straight to the Parser, as it is already complete
+            if (frame.Type == UavcanFrame.FrameType.SingleFrame)
+            {
+                UavcanPacketReceived?.Invoke(this, frame);
+                return;
+            }
+
+            // Multiframe parts are stored in the FrameStorage, and passed to the parser once complete
             lock (_lock)
             {
                 AddFrameToDictionary(frame);
@@ -94,7 +102,6 @@ namespace RevolveUavcan.Uavcan
             {
                 // If the subject ID dictionary already exists, it was not completed.
                 // Thus, we have lost a frame. Restart with the received frame
-                case UavcanFrame.FrameType.SingleFrame:
                 case UavcanFrame.FrameType.MultiFrameStart:
                     {
                         Dictionary<uint, UavcanFrame> subjectIdDictionary = _transferIdBuffer[frame.TransferId];
@@ -104,7 +111,10 @@ namespace RevolveUavcan.Uavcan
                             subjectIdDictionary.Remove(frame.SubjectId);
                         }
 
-                        subjectIdDictionary.Add(frame.SubjectId, frame);
+                        if (frame.ToggleBit)
+                        {
+                            subjectIdDictionary.Add(frame.SubjectId, frame);
+                        }
 
                         break;
                     }
