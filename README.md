@@ -7,9 +7,11 @@
   </div>
 </div>
 <p float="left">
-    <a href="https://revolve.no/"><img align=left src="https://raw.githubusercontent.com/RevolveNTNU/RevolveUavcan/tribe/.github/main/revolve.svg" width="20%"/>
-    <a href="https://uavcan.org/"><img align=right src="https://raw.githubusercontent.com/RevolveNTNU/RevolveUavcan/tribe/.github/main/uavcan.svg" width="20%"/>
+    <a href="https://revolve.no/"><img align=left src="https://raw.githubusercontent.com/RevolveNTNU/RevolveUavcan/tribe/.github/main/revolve.svg" width="30%"/>
+    <a href="https://uavcan.org/"><img align=right margin src="https://raw.githubusercontent.com/RevolveNTNU/RevolveUavcan/tribe/.github/main/uavcan.svg" width="30%"/>
 </p>
+<br>
+<br>
 <br>
 <br>
 <br>
@@ -44,5 +46,6 @@ There are currently some limitations present in this implementation, some by cho
 - Does not consider @ commands in the DSDL
 - Does not support serialization of Multiframe messages
 - Multiframe reading does not work perfectly, suspect some threading issues
+- Does not support dynamic array lengths
 - All data is parsed as doubles, this is due to a design limitation in our Desktop Application Revolve Analyze.
 
