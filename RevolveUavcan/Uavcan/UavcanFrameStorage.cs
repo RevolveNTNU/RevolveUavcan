@@ -43,7 +43,7 @@ namespace RevolveUavcan.Uavcan
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="frame">An instance of the UavcanFrame class</param>
-        private void StoreFrame(object sender, UavcanFrame frame)
+        public void StoreFrame(object sender, UavcanFrame frame)
         {
             // Single frames can be passed straight to the Parser, as it is already complete
             if (frame.Type == UavcanFrame.FrameType.SingleFrame)
@@ -111,7 +111,10 @@ namespace RevolveUavcan.Uavcan
                             subjectIdDictionary.Remove(frame.SubjectId);
                         }
 
-                        subjectIdDictionary.Add(frame.SubjectId, frame);
+                        if (frame.ToggleBit)
+                        {
+                            subjectIdDictionary.Add(frame.SubjectId, frame);
+                        }
 
                         break;
                     }
