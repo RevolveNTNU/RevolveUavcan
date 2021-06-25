@@ -35,4 +35,4 @@ jobs:
         uses: myci-actions/publish-nuget@5
         with:
           filename: "*.nupkg"
-          apiKey: ${{secrets.NUGET_API_KEY}}
+          api-key: ${{secrets.NUGET_API_KEY}}
