@@ -1,0 +1,35 @@
+name: Build and Release NuGet package
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  publish:
+    name: build package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.1.x
+          
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore
+
+      - id: get-version
+        run: |
+          # remove the `refs/tags/v`
+          version=$(echo ${{ github.ref }}| cut -d'v' -f 2)
+          # Ensure file is written in UTF8
+          echo "::set-output name=version::$version"
+      - name: Create NuGet package  
+        run: dotnet pack -v normal -c Release --include-source -p:PackageVersion=${{steps.get-version.outputs.version}} -o nupkg RevolveUavcan/RevolveUavcan.*proj
+
+      - name: Push package to NuGet
+        run: dotnet nuget push /home/runner/work/RevolveUavcan/RevolveUavcan/nupkg/RevolveUavcan.${{steps.get-version.outputs.version}}.nupkg --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
