@@ -36,7 +36,7 @@ namespace RevolveUavcan.Uavcan
 
         public long TimeStamp { get; set; }
 
-        public FrameType Type { get; }
+        public FrameType Type { get; set; }
 
         public uint SourceNodeId { get; set; }
 
@@ -245,11 +245,8 @@ namespace RevolveUavcan.Uavcan
             ToggleBit = nextFrame.ToggleBit;
             Data = result;
 
-            if (nextFrame.Type == FrameType.SingleFrame ||
-                nextFrame.Type == FrameType.MultiFrameEnd)
-            {
-                IsCompleted = true;
-            }
+            IsCompleted = nextFrame.Type == FrameType.SingleFrame || nextFrame.Type == FrameType.MultiFrameEnd;
+            Type = nextFrame.Type;
         }
 
         private FrameType GetFrameType()

@@ -3,6 +3,7 @@ using RevolveUavcan.Uavcan;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using static RevolveUavcan.Uavcan.UavcanFrame;
 
 namespace RevolveUavcanTest.Uavcan
 {
@@ -71,6 +72,83 @@ namespace RevolveUavcanTest.Uavcan
                                         true,
                                         (uint)4,
                                         (uint)11};
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetUavcanFrames), DynamicDataSourceType.Method)]
+        public void UavcanFrameGetCanIdTest(UavcanFrame frame, uint expectedCanId)
+        {
+            Assert.AreEqual(expectedCanId, frame.GetCanId());
+        }
+
+        public static IEnumerable<object[]> GetUavcanFrames()
+        {
+            yield return new object[] { new UavcanFrame(){
+                SubjectId = 413,
+                Priority = 1,
+                IsServiceNotMessage = false,
+                SourceNodeId = 1
+            }, (uint)73506049};
+
+            yield return new object[] { new UavcanFrame(){
+                SubjectId = 35,
+                Priority = 1,
+                IsServiceNotMessage = true,
+                IsRequestNotResponse = true,
+                SourceNodeId = 1,
+                DestinationNodeId = 2,
+            }, (uint)118014209};
+
+            yield return new object[] { new UavcanFrame(){
+                SubjectId = 35,
+                Priority = 1,
+                IsServiceNotMessage = true,
+                IsRequestNotResponse = false,
+                SourceNodeId = 2,
+                DestinationNodeId = 1,
+            }, (uint)101236866};
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetUavcanFramesWithTailByte), DynamicDataSourceType.Method)]
+        public void UavcanFrameGetTailByteTest(UavcanFrame frame, byte expectedTailbyte)
+        {
+            Assert.AreEqual(expectedTailbyte, frame.GetTailByte());
+        }
+
+        public static IEnumerable<object[]> GetUavcanFramesWithTailByte()
+        {
+            yield return new object[] { new UavcanFrame(){
+                IsStartOfTransfer = false,
+                IsEndOfTransfer = false,
+                ToggleBit = true,
+                TransferId = 1
+            }, (byte)33};
+
+            yield return new object[] { new UavcanFrame(){
+                IsStartOfTransfer = true,
+                IsEndOfTransfer = true,
+                ToggleBit = true,
+                TransferId = 1
+            }, (byte)225};
+            yield return new object[] { new UavcanFrame(){
+                IsStartOfTransfer = true,
+                IsEndOfTransfer = false,
+                ToggleBit = true,
+                TransferId = 1
+            }, (byte)161};
+            yield return new object[] { new UavcanFrame(){
+                IsStartOfTransfer = false,
+                IsEndOfTransfer = true,
+                ToggleBit = true,
+                TransferId = 1
+            }, (byte)97};
+            yield return new object[] { new UavcanFrame(){
+                IsStartOfTransfer = true,
+                IsEndOfTransfer = true,
+                ToggleBit = true,
+                TransferId = 2
+            }, (byte)226};
         }
     }
 }
