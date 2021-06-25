@@ -1,11 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
+using RevolveUavcan.Dsdl.Fields;
+using RevolveUavcan.Dsdl.Interfaces;
 using RevolveUavcan.Dsdl.Types;
 using RevolveUavcan.Uavcan;
-using System.IO;
-using RevolveUavcan.Dsdl.Fields;
-using RevolveUavcan.Dsdl;
-using RevolveUavcan.Dsdl.Interfaces;
+using System.Collections.Generic;
 
 namespace RevolveUavcanTest.Uavcan
 {
