@@ -22,13 +22,12 @@ jobs:
       - name: Build
         run: dotnet build --no-restore
 
-      - name: Extract version from tag
+      - id: get-version
         run: |
           # remove the `refs/tags/v`
-          Release_Version=$(echo ${{ github.ref }}| cut -d'v' -f 2)
+          version=$(echo ${{ github.ref }}| cut -d'v' -f 2)
           # Ensure file is written in UTF8
-          echo RELEASE_VERSION=$Release_Version
-
+          echo "::set-output name=version::$version"
       - name: Publish NuGet
         uses: brandedoutcast/publish-nuget@v2.5.5
         with:
@@ -36,4 +35,4 @@ jobs:
           PACKAGE_NAME: RevolveUavcan
           NUGET_KEY: ${{secrets.NUGET_API_KEY}}
           TAG_COMMIT: false
-          VERSION_STATIC: $env:RELEASE_VERSION
+          VERSION_STATIC: ${{steps.get-version.outputs.version}}
