@@ -25,7 +25,7 @@ jobs:
       - name: Extract version from tag
         run: |
           # remove the `refs/tags/v`
-          $Release_Version = $(echo ${{ github.ref }}| cut -d'v' -f 1)
+          Release_Version=$(echo ${{ github.ref }}| cut -d'v' -f 1)
           # Ensure file is written in UTF8
           echo "RELEASE_VERSION=$Release_Version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
