@@ -1,8 +1,8 @@
-name: Build NuGet package
+name: Build and Release NuGet package
+
 on:
   push:
-    tags:
-      - "v*.*.*"
+    branches: [ fix/release-on-tag ]
 
 jobs:
   publish:
@@ -15,18 +15,16 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: 3.1.x
+          
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
         run: dotnet build --no-restore
 
-      - uses: nuget/setup-nuget@v1
+      - name: Publish NuGet
+        uses: brandedoutcast/publish-nuget@v2.5.5
         with:
-          nuget-version: '5.x'
-      - run: nuget spec
-      - run: nuget pack RevolveUavcan/RevolveUavcan.csproj
-
-      - uses: actions/upload-artifact@v2
-        with:
-          name: nuget_package
-          path: /home/runner/work/RevolveUavcan/RevolveUavcan/*.nupkg
+          PROJECT_FILE_PATH: RevolveUavcan/RevolveUavcan.csproj
+          PACKAGE_NAME: RevolveUavcan
+          NUGET_KEY: ${{secrets.NUGET_API_KEY}}
+          TAG_FORMAT: v*
