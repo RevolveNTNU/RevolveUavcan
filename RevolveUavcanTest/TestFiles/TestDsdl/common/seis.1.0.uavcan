@@ -1,0 +1,10 @@
+#
+#       Generic Debug Message # 6
+#
+uint8 a = 0xA
+uint8 b = 0b00000001
+int8 c = 0o2
+int8 d = 3
+float32 e = 128.16
+bool f = false
+uint8 g = 'L'

@@ -151,22 +151,74 @@ namespace RevolveUavcanTest.Dsdl
         }
 
         [TestMethod]
+        [DeploymentItem("seis.1.0.uavcan", "TestFiles/TestDsdl/common")]
+        public void ParseValidConstantsTest()
+        {
+            var source = File.ReadAllText(@"TestFiles/TestDsdl/common/seis.1.0.uavcan");
+
+            var result = parser.ParseSource(@"TestFiles/TestDsdl/common/seis.1.0.uavcan", source);
+            Assert.IsNotNull(result);
+
+            // Verify full name
+            Assert.AreEqual("TestDsdl.common.seis", result.FullName);
+
+            // Verify constants
+            Assert.AreEqual(7, result.RequestConstants.Count);
+
+            Assert.AreEqual("a", result.RequestConstants[0].name);
+            Assert.AreEqual("10", result.RequestConstants[0].StringValue);
+            Assert.AreEqual("b", result.RequestConstants[1].name);
+            Assert.AreEqual("1", result.RequestConstants[1].StringValue);
+            Assert.AreEqual("c", result.RequestConstants[2].name);
+            Assert.AreEqual("2", result.RequestConstants[2].StringValue);
+            Assert.AreEqual("d", result.RequestConstants[3].name);
+            Assert.AreEqual("3", result.RequestConstants[3].StringValue);
+            Assert.AreEqual("e", result.RequestConstants[4].name);
+            Assert.AreEqual(128.16.ToString(), result.RequestConstants[4].StringValue);
+            Assert.AreEqual("f", result.RequestConstants[5].name);
+            Assert.AreEqual("False", result.RequestConstants[5].StringValue);
+            Assert.AreEqual("g", result.RequestConstants[6].name);
+            Assert.AreEqual("L", result.RequestConstants[6].StringValue); // L in ASCII
+        }
+
+        [TestMethod]
         [DeploymentItem("413.PitotTube.1.0.uavcan", "TestFiles/TestDsdl")]
         [DeploymentItem("35.RTDS.1.0.uavcan", "TestFiles/TestDsdl/dashboard")]
         [DeploymentItem("136.MzRefDebug.1.0.uavcan", "TestFiles/TestDsdl/control")]
         [DeploymentItem("PIDControl.1.0.uavcan", "TestFiles/TestDsdl/control")]
         [DeploymentItem("60.cinco.1.0.uavcan", "TestFiles/TestDsdl/common")]
+        [DeploymentItem("seis.1.0.uavcan", "TestFiles/TestDsdl/common")]
         public void ParseFullNamespaceTest()
         {
             parser.ParseAllDirectories();
+            List<string> dsdlNames = new List<string> { "TestDsdl.PitotTube", "TestDsdl.dashboard.RTDS", "TestDsdl.control.MzRefDebug", "TestDsdl.control.PIDControl", "TestDsdl.common.cinco", "TestDsdl.common.seis" };
 
-            Assert.AreEqual(5, parser.ParsedDsdlDict.Count);
+            Assert.AreEqual(dsdlNames.Count, parser.ParsedDsdlDict.Count);
 
-            List<string> dsdlNames = new List<string> { "TestDsdl.PitotTube", "TestDsdl.dashboard.RTDS", "TestDsdl.control.MzRefDebug", "TestDsdl.control.PIDControl", "TestDsdl.common.cinco" };
             foreach (var keyValPair in parser.ParsedDsdlDict)
             {
                 Assert.IsTrue(dsdlNames.Contains(keyValPair.Key));
             }
+        }
+
+        [TestMethod]
+        public void ThrowDsdlExceptionOnUnknownDsdlPath()
+        {
+            var dsdlParser = new DsdlParser("");
+            Assert.ThrowsException<DsdlException>(() => dsdlParser.ParseAllDirectories());
+        }
+
+        [TestMethod]
+        [DataRow("int 8 command", "413.PitotTube.1.0.uavcan", DisplayName = "Invalid datatype syntax")]
+        [DataRow("PIDControl speed", "413.PitotTube.1.0.uavcan", DisplayName = "Unknown Compound Type")]
+        [DataRow("Int8 command", "413.PitotTube.1.0.uavcan", DisplayName = "Invalid datatype syntax")]
+        [DataRow("int8 command\n---\nint8 command2\n---\nint8 command3", "413.PitotTube.1.0.uavcan", DisplayName = "Two service seperators")]
+        [DataRow("int8 command\nuint8 command", "413.PitotTube.1.0.uavcan", DisplayName = "Duplicate field name")]
+        [DataRow("int8 command", "413.PitotTube.1.0", DisplayName = "Invalid filename")]
+        public void ThrowDsdlExceptionTest(string dsdlRow, string filename)
+        {
+            var path = $"{Path.Join("TestFiles", "TestDsdl", filename)}";
+            Assert.ThrowsException<DsdlException>(() => parser.ParseSource(path, dsdlRow));
         }
     }
 }
