@@ -4,6 +4,7 @@ using RevolveUavcan.Dsdl.Types;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -126,190 +127,176 @@ namespace RevolveUavcan.Dsdl
         /// <returns></returns>
         public CompoundType ParseSource(string filename, string sourceText)
         {
-            try
+            (var fullTypeName, Tuple<int, int> version, var defaultDtid) =
+                FullTypenameVersionAndDtidFromFilename(filename);
+            List<List<string>> dsdlLines = Tokenize(sourceText);
+
+            var allAttributeNames = new Set<string>();
+            var fields = new List<Field>();
+            var constants = new List<Constant>();
+            var respFields = new List<Field>();
+            var respConstants = new List<Constant>();
+            var union = false;
+            var respUnion = false;
+            var hasResponsePart = false;
+
+            var messageSize = 0;
+            var responseSize = 0;
+
+            for (int i = 0; i < dsdlLines.Count; i++)
             {
-                (var fullTypeName, Tuple<int, int> version, var defaultDtid) =
-                    FullTypenameVersionAndDtidFromFilename(filename);
-                List<List<string>> dsdlLines = Tokenize(sourceText);
+                var line = dsdlLines[i];
 
-                var allAttributeNames = new Set<string>();
-                var fields = new List<Field>();
-                var constants = new List<Constant>();
-                var respFields = new List<Field>();
-                var respConstants = new List<Constant>();
-                var union = false;
-                var respUnion = false;
-                var hasResponsePart = false;
-
-                var messageSize = 0;
-                var responseSize = 0;
-
-                for (int i = 0; i < dsdlLines.Count; i++)
+                if (line[0] == "---" && line.Count == 1)
                 {
-                    var line = dsdlLines[i];
-
-                    try
+                    if (hasResponsePart)
                     {
-                        if (line[0] == "---" && line.Count == 1)
-                        {
-                            if (hasResponsePart)
-                            {
-                                throw new DsdlException("A file can only have 1 responsepart", filename);
-                            }
-
-                            hasResponsePart = true;
-                            allAttributeNames = new Set<string>();
-                            continue;
-                        }
-
-                        if (line[0] == "@union" && line.Count == 1)
-                        {
-                            if (hasResponsePart)
-                            {
-                                respUnion = true;
-                            }
-                            else
-                            {
-                                union = true;
-                            }
-
-                            continue;
-                        }
-
-                        if (line[0] == "@assert" || line[0] == "@sealed")
-                        {
-                            continue;
-                        }
-
-                        Attribute attr = ParseLine(filename, line, i);
-
-                        if (attr.name == "")
-                        {
-                            attr.name = $"void{i}";
-                        }
-
-
-                        if (attr.name != "" && allAttributeNames.ContainsKey(attr.name))
-                        {
-                            throw new DsdlException($"Attributename {attr.name} is already registered.", filename,
-                                i);
-                        }
-
-
-                        allAttributeNames.Add(attr.name);
-
-                        if (attr.isConstant)
-                        {
-                            if (hasResponsePart)
-                            {
-                                respConstants.Add(attr as Constant);
-                            }
-                            else
-                            {
-                                constants.Add(attr as Constant);
-                            }
-                        }
-                        else
-                        {
-                            if (hasResponsePart)
-                            {
-                                // Adds the field to the Response Fields in this UAVCAN message
-                                // Padding is added according to the serialisation rules in the
-                                // UAVCAN specification, chapter 3.7:
-                                // https://uavcan.org/specification/UAVCAN_Specification_v1.0-beta.pdf
-
-                                var field = attr as Field;
-                                if (field == null)
-                                {
-                                    throw new DsdlException($"Error in parsing Response of {attr.name}.", filename, i);
-                                }
-
-                                if (TryAddPadding(field, responseSize, out var prePadding))
-                                {
-                                    respFields.Add(prePadding);
-                                    responseSize += prePadding.type.GetMaxBitLength();
-                                }
-
-                                respFields.Add(field);
-
-                                responseSize += field.type.GetMaxBitLength();
-
-                                if (TryAddPadding(field, responseSize, out var postPadding))
-                                {
-                                    respFields.Add(postPadding);
-                                    responseSize += postPadding.type.GetMaxBitLength();
-                                }
-                            }
-                            else
-                            {
-                                // Adds the field to the Response Fields in this UAVCAN message
-                                // Padding is added according to the serialisation rules in the
-                                // UAVCAN specification, chapter 3.7:
-                                // https://uavcan.org/specification/UAVCAN_Specification_v1.0-beta.pdf
-                                var field = attr as Field;
-
-                                if (field == null)
-                                {
-                                    throw new DsdlException($"Error in parsing Message of {attr.name}.", filename, i);
-                                }
-
-                                if (TryAddPadding(field, messageSize, out var prePadding))
-                                {
-                                    fields.Add(prePadding);
-                                    messageSize += prePadding.type.GetMaxBitLength();
-                                }
-
-                                fields.Add(field);
-
-                                if (field != null)
-                                {
-                                    messageSize += field.type.GetMaxBitLength();
-
-                                    if (TryAddPadding(field, messageSize, out var postPadding))
-                                    {
-                                        fields.Add(postPadding);
-                                        messageSize += postPadding.type.GetMaxBitLength();
-                                    }
-                                }
-                            }
-                        }
+                        throw new DsdlException("A file can only have 1 responsepart", filename);
                     }
-                    catch (DsdlException e)
-                    {
-                        throw new DsdlException(e.Message, filename, i);
-                    }
+
+                    hasResponsePart = true;
+                    allAttributeNames = new Set<string>();
+                    continue;
                 }
 
-                CompoundType t;
-
-                if (hasResponsePart)
+                if (line[0] == "@union" && line.Count == 1)
                 {
-                    t = new CompoundType(fullTypeName, MessageType.SERVICE, defaultDtid, version)
+                    if (hasResponsePart)
                     {
-                        RequestFields = fields,
-                        RequestConstants = constants,
-                        ResponseFields = respFields,
-                        ResponseConstants = respConstants,
-                        RequestUnion = union,
-                        ResponseUnion = respUnion
-                    };
+                        respUnion = true;
+                    }
+                    else
+                    {
+                        union = true;
+                    }
+
+                    continue;
+                }
+
+                if (line[0] == "@assert" || line[0] == "@sealed")
+                {
+                    continue;
+                }
+
+                Attribute attr = ParseLine(filename, line, i);
+
+                if (attr.name == "")
+                {
+                    attr.name = $"void{i}";
+                }
+
+
+                if (attr.name != "" && allAttributeNames.ContainsKey(attr.name))
+                {
+                    throw new DsdlException($"Attributename {attr.name} is already registered.", filename,
+                        i);
+                }
+
+
+                allAttributeNames.Add(attr.name);
+
+                if (attr.isConstant)
+                {
+                    if (hasResponsePart)
+                    {
+                        respConstants.Add(attr as Constant);
+                    }
+                    else
+                    {
+                        constants.Add(attr as Constant);
+                    }
                 }
                 else
                 {
-                    t = new CompoundType(fullTypeName, MessageType.MESSAGE, defaultDtid, version)
+                    if (hasResponsePart)
                     {
-                        RequestFields = fields,
-                        RequestConstants = constants,
-                        RequestUnion = union
-                    };
-                }
+                        // Adds the field to the Response Fields in this UAVCAN message
+                        // Padding is added according to the serialisation rules in the
+                        // UAVCAN specification, chapter 3.7:
+                        // https://uavcan.org/specification/UAVCAN_Specification_v1.0-beta.pdf
 
-                return t;
+                        var field = attr as Field;
+                        if (field == null)
+                        {
+                            throw new DsdlException($"Error in parsing Response of {attr.name}.", filename, i);
+                        }
+
+                        if (TryAddPadding(field, responseSize, out var prePadding))
+                        {
+                            respFields.Add(prePadding);
+                            responseSize += prePadding.type.GetMaxBitLength();
+                        }
+
+                        respFields.Add(field);
+
+                        responseSize += field.type.GetMaxBitLength();
+
+                        if (TryAddPadding(field, responseSize, out var postPadding))
+                        {
+                            respFields.Add(postPadding);
+                            responseSize += postPadding.type.GetMaxBitLength();
+                        }
+                    }
+                    else
+                    {
+                        // Adds the field to the Response Fields in this UAVCAN message
+                        // Padding is added according to the serialisation rules in the
+                        // UAVCAN specification, chapter 3.7:
+                        // https://uavcan.org/specification/UAVCAN_Specification_v1.0-beta.pdf
+                        var field = attr as Field;
+
+                        if (field == null)
+                        {
+                            throw new DsdlException($"Error in parsing Message of {attr.name}.", filename, i);
+                        }
+
+                        if (TryAddPadding(field, messageSize, out var prePadding))
+                        {
+                            fields.Add(prePadding);
+                            messageSize += prePadding.type.GetMaxBitLength();
+                        }
+
+                        fields.Add(field);
+
+                        if (field != null)
+                        {
+                            messageSize += field.type.GetMaxBitLength();
+
+                            if (TryAddPadding(field, messageSize, out var postPadding))
+                            {
+                                fields.Add(postPadding);
+                                messageSize += postPadding.type.GetMaxBitLength();
+                            }
+                        }
+                    }
+                }
             }
-            catch (DsdlException e)
+
+            CompoundType t;
+
+            if (hasResponsePart)
             {
-                throw new DsdlException(e.Message, filename);
+                t = new CompoundType(fullTypeName, MessageType.SERVICE, defaultDtid, version)
+                {
+                    RequestFields = fields,
+                    RequestConstants = constants,
+                    ResponseFields = respFields,
+                    ResponseConstants = respConstants,
+                    RequestUnion = union,
+                    ResponseUnion = respUnion
+                };
             }
+            else
+            {
+                t = new CompoundType(fullTypeName, MessageType.MESSAGE, defaultDtid, version)
+                {
+                    RequestFields = fields,
+                    RequestConstants = constants,
+                    RequestUnion = union
+                };
+            }
+
+            return t;
         }
 
         /// <summary>
@@ -683,11 +670,15 @@ namespace RevolveUavcan.Dsdl
                     baseSize = 8;
                 }
             }
+            if (baseSize != 10)
+            {
+                expression = expression.Substring(2);
+            }
 
             switch (baseType)
             {
                 case BaseType.FLOAT:
-                    returnValue.value = float.Parse(expression.Replace(".", ","));
+                    returnValue.value = float.Parse(expression, CultureInfo.InvariantCulture.NumberFormat);
                     break;
                 case BaseType.SIGNED_INT:
                     if (baseSize != 10)
@@ -706,7 +697,7 @@ namespace RevolveUavcan.Dsdl
                         var val = Regex.Unescape(expression.Trim('\''));
 
                         char character = val[0];
-                        returnValue.value = (uint)character;
+                        returnValue.value = character;
                         break;
                     }
 

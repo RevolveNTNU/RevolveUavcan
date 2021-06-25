@@ -9,6 +9,7 @@
   <ItemGroup>
     <None Remove="TestFiles\TestDsdl\413.PitotTube.1.0.uavcan" />
     <None Remove="TestFiles\TestDsdl\common\60.cinco.1.0.uavcan" />
+    <None Remove="TestFiles\TestDsdl\common\seis.1.0.uavcan" />
     <None Remove="TestFiles\TestDsdl\control\136.MzRefDebug.1.0.uavcan" />
     <None Remove="TestFiles\TestDsdl\control\PIDControl.1.0.uavcan" />
     <None Remove="TestFiles\TestDsdl\dashboard\35.RTDS.1.0.uavcan" />
@@ -16,6 +17,9 @@
 
   <ItemGroup>
     <EmbeddedResource Include="TestFiles\TestDsdl\413.PitotTube.1.0.uavcan">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TestFiles\TestDsdl\common\seis.1.0.uavcan">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="TestFiles\TestDsdl\common\60.cinco.1.0.uavcan">
