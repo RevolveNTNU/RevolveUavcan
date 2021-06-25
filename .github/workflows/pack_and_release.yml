@@ -32,7 +32,7 @@ jobs:
         run: dotnet pack -v normal -c Release --include-source -p:PackageVersion=${{steps.get-version.outputs.version}} -o nupkg RevolveUavcan/RevolveUavcan.*proj
 
       - name: Push package to NuGet
-        uses: myci-actions/publish-nuget@5
+        uses: dansiegel/publish-nuget@v1.01
         with:
           filename: "*.nupkg"
-          api-key: ${{secrets.NUGET_API_KEY}}
+          apiKey: ${{secrets.NUGET_API_KEY}}
