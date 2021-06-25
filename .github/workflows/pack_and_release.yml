@@ -32,4 +32,4 @@ jobs:
         run: dotnet pack -v normal -c Release --include-source -p:PackageVersion=${{steps.get-version.outputs.version}} -o nupkg RevolveUavcan/RevolveUavcan.*proj
 
       - name: Push package to NuGet
-        run: dotnet nuget push RevolveUavcan.${{steps.get-version.outputs.version}}.nupkg' --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
+        run: dotnet nuget push RevolveUavcan.${{steps.get-version.outputs.version}}.nupkg --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
