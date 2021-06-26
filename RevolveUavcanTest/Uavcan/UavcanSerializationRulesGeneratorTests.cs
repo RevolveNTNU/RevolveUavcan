@@ -282,5 +282,81 @@ namespace RevolveUavcanTest.Uavcan
             yield return new object[] { new Dictionary<string, CompoundType> { { fullName, compoundType }, { fullNameMessage, compoundTypeMessage } }, subjectId, fullName };
         }
 
+        [TestMethod]
+        [DynamicData(nameof(GetInvalidMessageSubjectIds), DynamicDataSourceType.Method)]
+        public void FailToGetMessageNameFromSubjectIdTest(Dictionary<string, CompoundType> dsdlDict, uint subjectId)
+        {
+            var dsdlParser = new Moq.Mock<IDsdlParser>();
+            dsdlParser.Setup(d => d.ParsedDsdlDict).Returns(dsdlDict);
+            var rulesGenerator = new UavcanSerializationRulesGenerator(dsdlParser.Object);
+
+            try
+            {
+                rulesGenerator.Init();
+            }
+            catch (UavcanException e)
+            {
+                Assert.Fail("Expected no exception, but got: " + e.Message);
+            }
+
+            Assert.AreEqual(string.Empty, rulesGenerator.GetMessageNameFromSubjectId(subjectId));
+        }
+        public static IEnumerable<object[]> GetInvalidMessageSubjectIds()
+        {
+            string fullName = "dashboard.RTDS";
+            uint subjectId = 35;
+            CompoundType compoundType = new CompoundType(fullName,
+                MessageType.SERVICE,
+                subjectId,
+                new System.Tuple<int, int>(1, 0));
+
+            string fullNameMessage = "PitotTube";
+            uint subjectIdMessage = 413;
+            CompoundType compoundTypeMessage = new CompoundType(fullNameMessage,
+                MessageType.MESSAGE,
+                subjectIdMessage,
+                new System.Tuple<int, int>(1, 0));
+
+            yield return new object[] { new Dictionary<string, CompoundType> { { fullName, compoundType }, { fullNameMessage, compoundTypeMessage } }, subjectIdMessage + 1 };
+        }
+
+        [TestMethod]
+        [DynamicData(nameof(GetInvalidServiceSubjectIds), DynamicDataSourceType.Method)]
+        public void FailToServiceNameFromSubjectIdTest(Dictionary<string, CompoundType> dsdlDict, uint subjectId)
+        {
+            var dsdlParser = new Moq.Mock<IDsdlParser>();
+            dsdlParser.Setup(d => d.ParsedDsdlDict).Returns(dsdlDict);
+            var rulesGenerator = new UavcanSerializationRulesGenerator(dsdlParser.Object);
+
+            try
+            {
+                rulesGenerator.Init();
+            }
+            catch (UavcanException e)
+            {
+                Assert.Fail("Expected no exception, but got: " + e.Message);
+            }
+
+            Assert.AreEqual(string.Empty, rulesGenerator.GetServiceNameFromSubjectId(subjectId));
+        }
+        public static IEnumerable<object[]> GetInvalidServiceSubjectIds()
+        {
+            string fullName = "dashboard.RTDS";
+            uint subjectId = 35;
+            CompoundType compoundType = new CompoundType(fullName,
+                MessageType.SERVICE,
+                subjectId,
+                new System.Tuple<int, int>(1, 0));
+
+            string fullNameMessage = "PitotTube";
+            uint subjectIdMessage = 413;
+            CompoundType compoundTypeMessage = new CompoundType(fullNameMessage,
+                MessageType.MESSAGE,
+                subjectIdMessage,
+                new System.Tuple<int, int>(1, 0));
+
+            yield return new object[] { new Dictionary<string, CompoundType> { { fullName, compoundType }, { fullNameMessage, compoundTypeMessage } }, subjectId + 1 };
+        }
+
     }
 }
