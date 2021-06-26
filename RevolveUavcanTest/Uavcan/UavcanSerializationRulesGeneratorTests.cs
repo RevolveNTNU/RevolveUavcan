@@ -160,14 +160,23 @@ namespace RevolveUavcanTest.Uavcan
         }
 
         [TestMethod]
-        public void ThrowsUavcanExceptionWhenParserFails()
+        [DynamicData(nameof(GetDsdlExceptions), DynamicDataSourceType.Method)]
+        public void ThrowsUavcanExceptionWhenParserFails(DsdlException exception)
         {
             var stubParser = new Moq.Mock<IDsdlParser>();
-            stubParser.Setup(_ => _.ParseAllDirectories()).Throws(new DsdlException("Error parsing dsdl"));
+            stubParser.Setup(_ => _.ParseAllDirectories()).Throws(exception);
 
             var rulesGenerator = new UavcanSerializationRulesGenerator(stubParser.Object);
 
             Assert.ThrowsException<UavcanException>(() => rulesGenerator.Init());
+
+        }
+
+        public static IEnumerable<object[]> GetDsdlExceptions()
+        {
+            yield return new object[] { new DsdlException("Error parsing dsdl") };
+            yield return new object[] { new DsdlException("Error parsing dsdl", "filename") };
+            yield return new object[] { new DsdlException("Error parsing dsdl", "filename", sourceLine: 1) };
 
         }
 
