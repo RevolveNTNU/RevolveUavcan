@@ -132,8 +132,6 @@ namespace RevolveUavcan.Dsdl
             var constants = new List<Constant>();
             var respFields = new List<Field>();
             var respConstants = new List<Constant>();
-            var union = false;
-            var respUnion = false;
             var hasResponsePart = false;
 
             var messageSize = 0;
@@ -155,21 +153,7 @@ namespace RevolveUavcan.Dsdl
                     continue;
                 }
 
-                if (line[0] == "@union" && line.Count == 1)
-                {
-                    if (hasResponsePart)
-                    {
-                        respUnion = true;
-                    }
-                    else
-                    {
-                        union = true;
-                    }
-
-                    continue;
-                }
-
-                if (line[0] == "@assert" || line[0] == "@sealed")
+                if (line[0] == "@assert" || line[0] == "@sealed" || line[0] == "@union")
                 {
                     continue;
                 }
@@ -278,8 +262,8 @@ namespace RevolveUavcan.Dsdl
                     RequestConstants = constants,
                     ResponseFields = respFields,
                     ResponseConstants = respConstants,
-                    RequestUnion = union,
-                    ResponseUnion = respUnion
+                    RequestUnion = false,
+                    ResponseUnion = false
                 };
             }
             else
@@ -288,7 +272,7 @@ namespace RevolveUavcan.Dsdl
                 {
                     RequestFields = fields,
                     RequestConstants = constants,
-                    RequestUnion = union
+                    RequestUnion = false
                 };
             }
 
