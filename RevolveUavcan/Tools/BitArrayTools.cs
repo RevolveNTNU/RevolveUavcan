@@ -88,7 +88,7 @@ namespace RevolveUavcan.Tools
         {
             if (bitArray.Length > 32)
             {
-                throw new ArgumentException("BitArray length cannot be greater than 64 bits.");
+                throw new ArgumentException("BitArray length cannot be greater than 32 bits.");
             }
 
             // Find and return corresponding integer value from bitArrayWithMsb
