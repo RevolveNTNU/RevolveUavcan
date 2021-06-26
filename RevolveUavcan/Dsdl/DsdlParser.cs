@@ -37,7 +37,10 @@ namespace RevolveUavcan.Dsdl
             }
 
             // Parse each .uavcan file in the directory, including subdirectories
-            var dirs = Directory.GetDirectories(DsdlPath, "*", SearchOption.AllDirectories);
+            // Converted to list to easily add the root namespace folder as well
+            var dirs = Directory.GetDirectories(DsdlPath, "*", SearchOption.AllDirectories).ToList();
+            dirs.Add(DsdlPath);
+
             foreach (var file in dirs
                 .SelectMany(Directory.GetFiles)
                 .Where(fileName => fileName.Contains(".uavcan")))
@@ -97,13 +100,13 @@ namespace RevolveUavcan.Dsdl
             foreach (string line in text.Split(Environment.NewLine.ToCharArray()))
             {
                 var tempLine = r.Replace(line, "").Trim();
-                if (tempLine != "")
+                if (!string.IsNullOrEmpty(tempLine))
                 {
                     var list = tempLine.Split().ToList();
                     var storageList = new List<string>();
                     foreach (var token in list)
                     {
-                        if (token != "")
+                        if (!string.IsNullOrEmpty(token))
                         {
                             storageList.Add(token);
                         }
@@ -173,13 +176,13 @@ namespace RevolveUavcan.Dsdl
 
                 Attribute attr = ParseLine(filename, line, i);
 
-                if (attr.name == "")
+                if (string.IsNullOrEmpty(attr.name))
                 {
                     attr.name = $"void{i}";
                 }
 
 
-                if (attr.name != "" && allAttributeNames.ContainsKey(attr.name))
+                if (!string.IsNullOrEmpty(attr.name) && allAttributeNames.ContainsKey(attr.name))
                 {
                     throw new DsdlException($"Attributename {attr.name} is already registered.", filename,
                         i);
@@ -332,7 +335,7 @@ namespace RevolveUavcan.Dsdl
 
             if (tokens.Count < 2 && !tokens[0].StartsWith("void"))
             {
-                throw new DsdlException($"Syntaxerror in {filename}, have you forgotten to name the field?",
+                throw new DsdlException($"Syntaxerror in {filename}:{lineNumber}, have you forgotten to name the field?",
                     string.Join(" ", tokens));
             }
 
@@ -762,8 +765,8 @@ namespace RevolveUavcan.Dsdl
                     throw new DsdlException("Wrong version syntax. Has to be X.Y");
                 }
             }
-
-            string fullName = NamespaceFromFilename(filename) + "." + name;
+            var nameSpace = NamespaceFromFilename(filename);
+            string fullName = nameSpace != "" ? nameSpace + "." + name : name;
 
             return new Tuple<string, Tuple<int, int>, uint>(fullName, version, defaultDataID);
         }

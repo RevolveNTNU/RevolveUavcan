@@ -7,15 +7,25 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="TestFiles\FaultyDsdl\12,2.foo.1.0.uavcan" />
+    <None Remove="TestFiles\FaultyDsdl\12.bar.A.2.uavcan" />
     <None Remove="TestFiles\TestDsdl\413.PitotTube.1.0.uavcan" />
     <None Remove="TestFiles\TestDsdl\common\60.cinco.1.0.uavcan" />
     <None Remove="TestFiles\TestDsdl\common\seis.1.0.uavcan" />
     <None Remove="TestFiles\TestDsdl\control\136.MzRefDebug.1.0.uavcan" />
     <None Remove="TestFiles\TestDsdl\control\PIDControl.1.0.uavcan" />
     <None Remove="TestFiles\TestDsdl\dashboard\35.RTDS.1.0.uavcan" />
+    <None Remove="TestFiles\TestDsdl\padding\12.DataMessage.1.0.uavcan" />
+    <None Remove="TestFiles\TestDsdl\padding\DataType.1.0.uavcan" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="TestFiles\FaultyDsdl\12.bar.A.2.uavcan">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TestFiles\FaultyDsdl\12,2.foo.1.0.uavcan">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="TestFiles\TestDsdl\413.PitotTube.1.0.uavcan">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
@@ -32,6 +42,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="TestFiles\TestDsdl\dashboard\35.RTDS.1.0.uavcan">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TestFiles\TestDsdl\padding\12.DataMessage.1.0.uavcan">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TestFiles\TestDsdl\padding\DataType.1.0.uavcan">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
