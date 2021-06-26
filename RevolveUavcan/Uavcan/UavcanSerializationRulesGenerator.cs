@@ -28,6 +28,8 @@ namespace RevolveUavcan.Uavcan
             try
             {
                 DsdlParser.ParseAllDirectories();
+                MessageSerializationRules.Clear();
+                ServiceSerializationRules.Clear();
                 GenerateSerializationRulesForAllDsdl();
             }
             catch (DsdlException e)
