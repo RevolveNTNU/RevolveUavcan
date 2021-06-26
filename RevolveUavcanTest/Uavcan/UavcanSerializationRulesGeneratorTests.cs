@@ -14,7 +14,13 @@ namespace RevolveUavcanTest.Uavcan
         [DataTestMethod]
         [DynamicData(nameof(GetDsdlAndResult), DynamicDataSourceType.Method)]
         [DeploymentItem("60.cinco.1.0.uavcan", "TestFiles/TestDsdl/common")]
-        public void GenerateSingleMessageSerializationRule(Dictionary<string, CompoundType> dsdlDict, uint expectedSubjectId, string expectedMessageName, List<UavcanChannel> expectedSerializationRule)
+        public void GenerateSingleMessageSerializationRule(
+            Dictionary<string, CompoundType> dsdlDict,
+            uint expectedSubjectId,
+            string expectedMessageName,
+            List<UavcanChannel> expectedSerializationRule,
+            uint wrongSubjectId,
+            string wrongMessageName)
         {
             var dsdlParser = new Moq.Mock<IDsdlParser>();
             dsdlParser.Setup(d => d.ParsedDsdlDict).Returns(dsdlDict);
@@ -32,23 +38,21 @@ namespace RevolveUavcanTest.Uavcan
             Assert.IsTrue(rulesGenerator.TryGetSerializationRuleForMessage(expectedSubjectId, out var idRules));
             Assert.IsTrue(rulesGenerator.TryGetSerializationRuleForMessage(expectedMessageName, out var nameRules));
 
-            //CollectionAssert.AreEqual(expectedSerializationRule, idRules);
+            Assert.IsFalse(rulesGenerator.TryGetSerializationRuleForService(wrongSubjectId, out var _));
+            Assert.IsFalse(rulesGenerator.TryGetSerializationRuleForService(wrongMessageName, out var _));
 
-            Assert.AreEqual(expectedSerializationRule.Count, idRules.Count);
-            Assert.AreEqual(expectedSerializationRule.Count, nameRules.Count);
+            CollectionAssert.AreEqual(expectedSerializationRule, idRules);
+            CollectionAssert.AreEqual(expectedSerializationRule, nameRules);
 
-            for (int i = 0; i < expectedSerializationRule.Count; i++)
-            {
-                Assert.AreEqual(expectedSerializationRule[i], nameRules[i]);
-                Assert.AreEqual(expectedSerializationRule[i], idRules[i]);
-            }
         }
 
         public static IEnumerable<object[]> GetDsdlAndResult()
         {
             // Compound type that is not a message
             string fullNamePid = "TestDsdl.control.PIDControl";
+            string wrongName = "TestDsdl.wrong.name";
             uint subjectIdPid = 0;
+            uint wrongSubjectId = 42069;
             var compoundTypePid = new CompoundType(fullNamePid,
                 MessageType.MESSAGE,
                 subjectIdPid,
@@ -93,7 +97,7 @@ namespace RevolveUavcanTest.Uavcan
             expectedRuleCinco.Add(new UavcanChannel(BaseType.FLOAT, 32, "TestDsdl.common.cinco.h_1.i_term"));
             expectedRuleCinco.Add(new UavcanChannel(BaseType.FLOAT, 32, "TestDsdl.common.cinco.h_1.d_term"));
 
-            yield return new object[] { new Dictionary<string, CompoundType> { { fullNameCinco, compoundTypeCinco } }, subjectIdCinco, fullNameCinco, expectedRuleCinco };
+            yield return new object[] { new Dictionary<string, CompoundType> { { fullNameCinco, compoundTypeCinco } }, subjectIdCinco, fullNameCinco, expectedRuleCinco, wrongSubjectId, wrongName };
 
             // A compound type which has a compound type as field
             string fullNameMzRef = "TestDsdl.control.MzRefDebug";
@@ -117,12 +121,19 @@ namespace RevolveUavcanTest.Uavcan
             expectedRuleMzRef.Add(new UavcanChannel(BaseType.FLOAT, 32, "TestDsdl.control.MzRefDebug.open_loop_pid.i_term"));
             expectedRuleMzRef.Add(new UavcanChannel(BaseType.FLOAT, 32, "TestDsdl.control.MzRefDebug.open_loop_pid.d_term"));
 
-            yield return new object[] { new Dictionary<string, CompoundType> { { fullNameMzRef, compoundTypeMzRef }, { fullNamePid, compoundTypePid } }, subjectIdMzRef, fullNameMzRef, expectedRuleMzRef };
+            yield return new object[] { new Dictionary<string, CompoundType> { { fullNameMzRef, compoundTypeMzRef }, { fullNamePid, compoundTypePid } }, subjectIdMzRef, fullNameMzRef, expectedRuleMzRef, wrongSubjectId, wrongName };
         }
 
         [DataTestMethod]
         [DynamicData(nameof(GetDsdlAndResultForService), DynamicDataSourceType.Method)]
-        public void GenerateSingleServiceSerializationRule(Dictionary<string, CompoundType> dsdlDict, uint expectedSubjectId, string expectedServiceName, List<UavcanChannel> expectedRequestSerializationRule, List<UavcanChannel> expectedResponseSerializationRule)
+        public void GenerateSingleServiceSerializationRule(
+            Dictionary<string, CompoundType> dsdlDict,
+            uint expectedSubjectId,
+            string expectedServiceName,
+            List<UavcanChannel> expectedRequestSerializationRule,
+            List<UavcanChannel> expectedResponseSerializationRule,
+            uint wrongSubjectId,
+            string wrongServiceName)
         {
             var dsdlParser = new Moq.Mock<IDsdlParser>();
             dsdlParser.Setup(d => d.ParsedDsdlDict).Returns(dsdlDict);
@@ -140,11 +151,14 @@ namespace RevolveUavcanTest.Uavcan
             Assert.IsTrue(rulesGenerator.TryGetSerializationRuleForService(expectedSubjectId, out var idRules));
             Assert.IsTrue(rulesGenerator.TryGetSerializationRuleForService(expectedServiceName, out var nameRules));
 
-            AssertEqualSerializationRules(idRules.RequestFields, expectedRequestSerializationRule);
-            AssertEqualSerializationRules(idRules.ResponseFields, expectedResponseSerializationRule);
+            Assert.IsFalse(rulesGenerator.TryGetSerializationRuleForService(wrongSubjectId, out var _));
+            Assert.IsFalse(rulesGenerator.TryGetSerializationRuleForService(wrongServiceName, out var _));
 
-            AssertEqualSerializationRules(nameRules.RequestFields, expectedRequestSerializationRule);
-            AssertEqualSerializationRules(nameRules.ResponseFields, expectedResponseSerializationRule);
+            CollectionAssert.AreEqual(expectedRequestSerializationRule, idRules.RequestFields);
+            CollectionAssert.AreEqual(expectedResponseSerializationRule, idRules.ResponseFields);
+
+            CollectionAssert.AreEqual(expectedRequestSerializationRule, nameRules.RequestFields);
+            CollectionAssert.AreEqual(expectedResponseSerializationRule, nameRules.ResponseFields);
         }
 
         [TestMethod]
@@ -171,7 +185,9 @@ namespace RevolveUavcanTest.Uavcan
         public static IEnumerable<object[]> GetDsdlAndResultForService()
         {
             string fullName = "TestDsdl.dashboard.RTDS";
+            string wrongName = "TestDsdl.incorrect.name";
             uint subjectId = 35;
+            uint wrongSubjectId = 42;
             CompoundType compoundType = new CompoundType(fullName,
                 MessageType.SERVICE,
                 subjectId,
@@ -188,17 +204,7 @@ namespace RevolveUavcanTest.Uavcan
                 new UavcanChannel(BaseType.UNSIGNED_INT, 8, "TestDsdl.dashboard.RTDS.success")
             };
 
-            yield return new object[] { new Dictionary<string, CompoundType> { { fullName, compoundType } }, subjectId, fullName, expectedRuleRequest, expectedRuleResponse };
-        }
-
-        private void AssertEqualSerializationRules(List<UavcanChannel> expected, List<UavcanChannel> actual)
-        {
-            Assert.AreEqual(expected.Count, actual.Count);
-
-            for (int i = 0; i < expected.Count; i++)
-            {
-                Assert.AreEqual(expected[i], actual[i]);
-            }
+            yield return new object[] { new Dictionary<string, CompoundType> { { fullName, compoundType } }, subjectId, fullName, expectedRuleRequest, expectedRuleResponse, wrongSubjectId, wrongName };
         }
     }
 }
