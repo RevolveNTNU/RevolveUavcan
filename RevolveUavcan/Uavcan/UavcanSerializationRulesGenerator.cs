@@ -46,9 +46,9 @@ namespace RevolveUavcan.Uavcan
             }
             catch (InvalidOperationException)
             {
+                uavcanChannels = null;
                 return false;
             }
-                uavcanChannels = new List<UavcanChannel>();
         }
 
         public bool TryGetSerializationRuleForMessage(string messageName, out List<UavcanChannel> uavcanChannels)
@@ -61,7 +61,7 @@ namespace RevolveUavcan.Uavcan
             }
             catch (InvalidOperationException)
             {
-                uavcanChannels = new List<UavcanChannel>();
+                uavcanChannels = null;
                 return false;
             }
         }
@@ -76,7 +76,7 @@ namespace RevolveUavcan.Uavcan
             }
             catch (InvalidOperationException)
             {
-                service = new UavcanService(new List<UavcanChannel>(), new List<UavcanChannel>(), 0, "");
+                service = null;
                 return false;
 
             }
@@ -92,7 +92,7 @@ namespace RevolveUavcan.Uavcan
             }
             catch (InvalidOperationException)
             {
-                service = new UavcanService(new List<UavcanChannel>(), new List<UavcanChannel>(), 0, "");
+                service = null;
                 return false;
             }
         }
