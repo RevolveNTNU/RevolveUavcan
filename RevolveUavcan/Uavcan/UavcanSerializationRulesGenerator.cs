@@ -38,50 +38,63 @@ namespace RevolveUavcan.Uavcan
 
         public bool TryGetSerializationRuleForMessage(uint subjectId, out List<UavcanChannel> uavcanChannels)
         {
-            var key = MessageSerializationRules.Keys.FirstOrDefault(x => x.Item1 == subjectId);
-            if (key.Item1 == subjectId)
+            try
             {
-                uavcanChannels = MessageSerializationRules[key];
+                var keyValue = MessageSerializationRules.First(x => x.Key.Item1 == subjectId);
+                uavcanChannels = keyValue.Value;
                 return true;
             }
-            uavcanChannels = null;
-            return false;
+            catch (InvalidOperationException)
+            {
+                return false;
+            }
+                uavcanChannels = new List<UavcanChannel>();
         }
 
         public bool TryGetSerializationRuleForMessage(string messageName, out List<UavcanChannel> uavcanChannels)
         {
-            var key = MessageSerializationRules.Keys.FirstOrDefault(x => x.Item2 == messageName);
-            if (key.Item2 == messageName)
+            try
             {
-                uavcanChannels = MessageSerializationRules[key];
+                var keyValue = MessageSerializationRules.First(x => x.Key.Item2 == messageName);
+                uavcanChannels = keyValue.Value;
                 return true;
             }
-            uavcanChannels = null;
-            return false;
+            catch (InvalidOperationException)
+            {
+                uavcanChannels = new List<UavcanChannel>();
+                return false;
+            }
         }
 
         public bool TryGetSerializationRuleForService(uint subjectId, out UavcanService service)
         {
-            var key = ServiceSerializationRules.Keys.FirstOrDefault(x => x.Item1 == subjectId);
-            if (key.Item1 == subjectId)
+            try
             {
-                service = ServiceSerializationRules[key];
+                var keyValue = ServiceSerializationRules.First(x => x.Key.Item1 == subjectId);
+                service = keyValue.Value;
                 return true;
             }
-            service = null;
-            return false;
+            catch (InvalidOperationException)
+            {
+                service = new UavcanService(new List<UavcanChannel>(), new List<UavcanChannel>(), 0, "");
+                return false;
+
+            }
         }
 
         public bool TryGetSerializationRuleForService(string serviceName, out UavcanService service)
         {
-            var key = ServiceSerializationRules.Keys.FirstOrDefault(x => x.Item2 == serviceName);
-            if (key.Item2 == serviceName)
+            try
             {
-                service = ServiceSerializationRules[key];
+                var keyValue = ServiceSerializationRules.First(x => x.Key.Item2 == serviceName);
+                service = keyValue.Value;
                 return true;
             }
-            service = null;
-            return false;
+            catch (InvalidOperationException)
+            {
+                service = new UavcanService(new List<UavcanChannel>(), new List<UavcanChannel>(), 0, "");
+                return false;
+            }
         }
 
         /// <summary>

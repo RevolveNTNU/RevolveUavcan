@@ -57,6 +57,45 @@ namespace RevolveUavcanTest.Uavcan
             }
         }
 
+        [TestMethod]
+        public void NotParseNonExistentUavcanFrameSubjectIdTest()
+        {
+            uint subjectId = 0;
+            var stubUavcanMessageFrame = new UavcanFrame { IsServiceNotMessage = false, SubjectId = subjectId };
+
+            var stubUavcanServiceFrame = new UavcanFrame { IsServiceNotMessage = true, SubjectId = subjectId };
+
+
+            List<UavcanChannel> stubRule = Mock.Of<List<UavcanChannel>>();
+
+            var stubService = new UavcanService(stubRule, stubRule, subjectId, "stubService");
+
+            rulesGeneratorMock.Setup(_ => _.TryGetSerializationRuleForMessage(subjectId, out stubRule)).Returns(false);
+            rulesGeneratorMock.Setup(_ => _.TryGetSerializationRuleForService(subjectId, out stubService)).Returns(false);
+
+            var parser = new UavcanParser(parserLoggerMock.Object, rulesGeneratorMock.Object, frameStorage);
+
+
+            var messagePackets = new List<UavcanDataPacket>();
+            var servicePackets = new List<UavcanDataPacket>();
+
+            parser.UavcanMessageParsed += delegate (object sender, UavcanDataPacket dataPacket)
+            {
+                messagePackets.Add(dataPacket);
+            };
+
+            parser.UavcanServiceParsed += delegate (object sender, UavcanDataPacket dataPacket)
+            {
+                servicePackets.Add(dataPacket);
+            };
+
+            parser.ParseUavcanFrame(null, stubUavcanMessageFrame);
+            parser.ParseUavcanFrame(null, stubUavcanServiceFrame);
+
+            Assert.AreEqual(messagePackets.Count, 0);
+            Assert.AreEqual(servicePackets.Count, 0);
+        }
+
         public static IEnumerable<object[]> GetUavcanFrames()
         {
             // Simple Pitot Tube message
