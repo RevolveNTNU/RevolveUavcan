@@ -23,20 +23,20 @@ namespace RevolveUavcan.Dsdl.Fields
             IsDynamicArray = false;
         }
 
-        public UavcanChannel(BaseType basetype, int size, string fieldName, int arraySize, bool isDynamicArray)
-        {
-            Basetype = basetype;
-            Size = size;
-            FieldName = fieldName;
-            ArraySize = arraySize;
-            IsDynamicArray = isDynamicArray;
+        //public UavcanChannel(BaseType basetype, int size, string fieldName, int arraySize, bool isDynamicArray)
+        //{
+        //    Basetype = basetype;
+        //    Size = size;
+        //    FieldName = fieldName;
+        //    ArraySize = arraySize;
+        //    IsDynamicArray = isDynamicArray;
 
-            if (IsDynamicArray)
-            {
-                var temp = Math.Log(arraySize, 2);
-                NumberOfBitsInSize = Convert.ToInt32(Math.Ceiling(temp));
-            }
-        }
+        //    if (IsDynamicArray)
+        //    {
+        //        var temp = Math.Log(arraySize, 2);
+        //        NumberOfBitsInSize = Convert.ToInt32(Math.Ceiling(temp));
+        //    }
+        //}
 
         public override bool Equals(object obj)
         {
