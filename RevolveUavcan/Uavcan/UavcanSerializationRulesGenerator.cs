@@ -38,14 +38,17 @@ namespace RevolveUavcan.Uavcan
 
         public bool TryGetSerializationRuleForMessage(uint subjectId, out List<UavcanChannel> uavcanChannels)
         {
-            var key = MessageSerializationRules.Keys.FirstOrDefault(x => x.Item1 == subjectId);
-            if (key.Item1 == subjectId)
+            try
             {
-                uavcanChannels = MessageSerializationRules[key];
+                var keyValue = MessageSerializationRules.First(x => x.Key.Item1 == subjectId);
+                uavcanChannels = keyValue.Value;
                 return true;
             }
-            uavcanChannels = new List<UavcanChannel>();
-            return false;
+            catch (InvalidOperationException)
+            {
+                uavcanChannels = new List<UavcanChannel>();
+                return false;
+            }
         }
 
         public bool TryGetSerializationRuleForMessage(string messageName, out List<UavcanChannel> uavcanChannels)
