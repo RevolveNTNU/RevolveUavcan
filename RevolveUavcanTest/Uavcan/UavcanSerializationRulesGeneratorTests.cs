@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using RevolveUavcan.Dsdl;
 using RevolveUavcan.Dsdl.Fields;
 using RevolveUavcan.Dsdl.Interfaces;
 using RevolveUavcan.Dsdl.Types;
@@ -18,7 +19,15 @@ namespace RevolveUavcanTest.Uavcan
             var dsdlParser = new Moq.Mock<IDsdlParser>();
             dsdlParser.Setup(d => d.ParsedDsdlDict).Returns(dsdlDict);
             var rulesGenerator = new UavcanSerializationRulesGenerator(dsdlParser.Object);
-            Assert.IsTrue(rulesGenerator.Init());
+
+            try
+            {
+                rulesGenerator.Init();
+            }
+            catch (UavcanException e)
+            {
+                Assert.Fail("Expected no exception, but got: " + e.Message);
+            }
 
             Assert.IsTrue(rulesGenerator.TryGetSerializationRuleForMessage(expectedSubjectId, out var idRules));
             Assert.IsTrue(rulesGenerator.TryGetSerializationRuleForMessage(expectedMessageName, out var nameRules));
@@ -130,7 +139,15 @@ namespace RevolveUavcanTest.Uavcan
             var dsdlParser = new Moq.Mock<IDsdlParser>();
             dsdlParser.Setup(d => d.ParsedDsdlDict).Returns(dsdlDict);
             var rulesGenerator = new UavcanSerializationRulesGenerator(dsdlParser.Object);
-            Assert.IsTrue(rulesGenerator.Init());
+
+            try
+            {
+                rulesGenerator.Init();
+            }
+            catch (UavcanException e)
+            {
+                Assert.Fail("Expected no exception, but got: " + e.Message);
+            }
 
             Assert.IsTrue(rulesGenerator.TryGetSerializationRuleForService(expectedSubjectId, out var idRules));
             Assert.IsTrue(rulesGenerator.TryGetSerializationRuleForService(expectedServiceName, out var nameRules));
@@ -140,6 +157,18 @@ namespace RevolveUavcanTest.Uavcan
 
             AssertEqualSerializationRules(nameRules.RequestFields, expectedRequestSerializationRule);
             AssertEqualSerializationRules(nameRules.ResponseFields, expectedResponseSerializationRule);
+        }
+
+        [TestMethod]
+        public void ThrowsUavcanExceptionWhenParserFails()
+        {
+            var stubParser = new Moq.Mock<IDsdlParser>();
+            stubParser.Setup(_ => _.ParseAllDirectories()).Throws(new DsdlException("Error parsing dsdl"));
+
+            var rulesGenerator = new UavcanSerializationRulesGenerator(stubParser.Object);
+
+            Assert.ThrowsException<UavcanException>(() => rulesGenerator.Init());
+
         }
 
         public static IEnumerable<object[]> GetDsdlAndResultForService()

@@ -11,7 +11,12 @@ namespace RevolveUavcan.Uavcan.Interfaces
         Dictionary<Tuple<uint, string>, List<UavcanChannel>> MessageSerializationRules { get; }
         Dictionary<Tuple<uint, string>, UavcanService> ServiceSerializationRules { get; }
 
-        bool Init();
+        /// <summary>
+        /// Use the <see cref="DsdlParser"/> to initialize the <see cref="MessageSerializationRules"/> 
+        /// and <see cref="ServiceSerializationRules"/>.
+        /// </summary>
+        /// <exception cref="UavcanException">The parsing of DsdlRules fails</exception>
+        void Init();
         bool TryGetSerializationRuleForMessage(uint subjectId, out List<UavcanChannel> uavcanChannels);
         bool TryGetSerializationRuleForMessage(string messageName, out List<UavcanChannel> uavcanChannels);
         bool TryGetSerializationRuleForService(uint subjectId, out UavcanService service);
