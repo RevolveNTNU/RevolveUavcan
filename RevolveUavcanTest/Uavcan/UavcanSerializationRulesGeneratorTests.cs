@@ -39,20 +39,8 @@ namespace RevolveUavcanTest.Uavcan
 
             for (int i = 0; i < expectedSerializationRule.Count; i++)
             {
-                Assert.AreEqual(expectedSerializationRule[i].FieldName, idRules[i].FieldName);
-                Assert.AreEqual(expectedSerializationRule[i].FieldName, nameRules[i].FieldName);
-
-                Assert.AreEqual(expectedSerializationRule[i].Size, idRules[i].Size);
-                Assert.AreEqual(expectedSerializationRule[i].Size, nameRules[i].Size);
-
-                Assert.AreEqual(expectedSerializationRule[i].ArraySize, idRules[i].ArraySize);
-                Assert.AreEqual(expectedSerializationRule[i].ArraySize, nameRules[i].ArraySize);
-
-                Assert.AreEqual(expectedSerializationRule[i].Basetype, idRules[i].Basetype);
-                Assert.AreEqual(expectedSerializationRule[i].Basetype, nameRules[i].Basetype);
-
-                Assert.AreEqual(expectedSerializationRule[i].IsDynamicArray, idRules[i].IsDynamicArray);
-                Assert.AreEqual(expectedSerializationRule[i].IsDynamicArray, nameRules[i].IsDynamicArray);
+                Assert.AreEqual(expectedSerializationRule[i], nameRules[i]);
+                Assert.AreEqual(expectedSerializationRule[i], idRules[i]);
             }
         }
 
@@ -209,15 +197,7 @@ namespace RevolveUavcanTest.Uavcan
 
             for (int i = 0; i < expected.Count; i++)
             {
-                Assert.AreEqual(expected[i].FieldName, actual[i].FieldName);
-
-                Assert.AreEqual(expected[i].Size, actual[i].Size);
-
-                Assert.AreEqual(expected[i].ArraySize, actual[i].ArraySize);
-
-                Assert.AreEqual(expected[i].Basetype, actual[i].Basetype);
-
-                Assert.AreEqual(expected[i].IsDynamicArray, actual[i].IsDynamicArray);
+                Assert.AreEqual(expected[i], actual[i]);
             }
         }
     }
