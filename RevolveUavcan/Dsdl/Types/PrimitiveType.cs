@@ -31,7 +31,7 @@ namespace RevolveUavcan.Dsdl.Types
         };
 
         public PrimitiveType(BaseType baseType, int bitLength, CastMode castMode) :
-                        base(GetNormalizedDefinition(castMode, baseType), Category.PRIMITIVE)
+                        base(GetNormalizedDefinition(castMode, baseType, bitLength), Category.PRIMITIVE)
         {
             BaseType = baseType;
             this.bitLength = bitLength;
@@ -39,17 +39,17 @@ namespace RevolveUavcan.Dsdl.Types
             valueRange = TypeLimits.getRange(baseType, bitLength);
         }
 
-        public override string ToString() => GetNormalizedDefinition(castMode, BaseType);
+        public override string ToString() => GetNormalizedDefinition(castMode, BaseType, bitLength);
 
         public override int GetMaxBitLength() => bitLength;
 
         public override int GetMinBitLength() => bitLength;
 
-        public static string GetNormalizedDefinition(CastMode castMode, BaseType baseType)
+        public static string GetNormalizedDefinition(CastMode castMode, BaseType baseType, int size)
         {
             var castModeString = castMode == CastMode.SATURATED ? "saturated" : "truncated";
             var baseTypeName = BaseTypeNames[baseType];
-            return castModeString + " " + baseTypeName;
+            return $"{castModeString} {baseTypeName}{size}";
         }
     }
 }

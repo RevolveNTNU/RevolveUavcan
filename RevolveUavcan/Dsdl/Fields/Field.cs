@@ -15,7 +15,7 @@ namespace RevolveUavcan.Dsdl.Fields
                 return type.ToString();
             }
 
-            return $"{type.ToString()} {name}";
+            return $"{type} {name}";
         }
     }
 }
