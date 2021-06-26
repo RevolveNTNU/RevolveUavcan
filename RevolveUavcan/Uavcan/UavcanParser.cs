@@ -13,7 +13,7 @@ namespace RevolveUavcan.Uavcan
     public class UavcanParser : IUavcanParser
     {
         private readonly ILogger _logger;
-        private readonly IUavcanSerializationGenerator _uavcanSerializationRulesGenerator;
+        public IUavcanSerializationGenerator UavcanSerializationRulesGenerator { get; }
         private List<uint> _invalidMessageIds = new List<uint>();
         private List<uint> _invalidServiceIds = new List<uint>();
 
@@ -29,7 +29,7 @@ namespace RevolveUavcan.Uavcan
         public UavcanParser(ILogger<UavcanParser> logger, IUavcanSerializationGenerator uavcanSerializationRuleGenerator, UavcanFrameStorage frameStorage)
         {
             _logger = logger;
-            _uavcanSerializationRulesGenerator = uavcanSerializationRuleGenerator;
+            UavcanSerializationRulesGenerator = uavcanSerializationRuleGenerator;
             frameStorage.UavcanPacketReceived += ParseUavcanFrame;
         }
 
@@ -47,7 +47,7 @@ namespace RevolveUavcan.Uavcan
 
         private void ParseMessage(UavcanFrame frame)
         {
-            if (_uavcanSerializationRulesGenerator.TryGetSerializationRuleForMessage(frame.SubjectId, out var uavcanChannels))
+            if (UavcanSerializationRulesGenerator.TryGetSerializationRuleForMessage(frame.SubjectId, out var uavcanChannels))
             {
                 var dataDictionary = ParseUavcanFrame(frame, uavcanChannels);
 
@@ -73,7 +73,7 @@ namespace RevolveUavcan.Uavcan
 
         private void ParseService(UavcanFrame frame)
         {
-            if (_uavcanSerializationRulesGenerator.TryGetSerializationRuleForService(frame.SubjectId, out var uavcanService))
+            if (UavcanSerializationRulesGenerator.TryGetSerializationRuleForService(frame.SubjectId, out var uavcanService))
             {
                 var uavcanChannels = frame.IsRequestNotResponse
                     ? uavcanService.RequestFields

@@ -68,6 +68,34 @@ namespace RevolveUavcan.Uavcan
             }
         }
 
+        public string GetMessageNameFromSubjectId(uint subjectId)
+        {
+            try
+            {
+                var keyValue = MessageSerializationRules.First(x => x.Key.Item1 == subjectId);
+                var name = keyValue.Key.Item2;
+                return name;
+            }
+            catch (InvalidOperationException)
+            {
+                return string.Empty;
+            }
+        }
+
+        public string GetServiceNameFromSubjectId(uint subjectId)
+        {
+            try
+            {
+                var keyValue = ServiceSerializationRules.First(x => x.Key.Item1 == subjectId);
+                var name = keyValue.Key.Item2;
+                return name;
+            }
+            catch (InvalidOperationException)
+            {
+                return string.Empty;
+            }
+        }
+
         public bool TryGetSerializationRuleForService(uint subjectId, out UavcanService service)
         {
             try

@@ -7,6 +7,7 @@ namespace RevolveUavcan.Uavcan.Interfaces
     {
         event EventHandler<UavcanDataPacket> UavcanMessageParsed;
         event EventHandler<UavcanDataPacket> UavcanServiceParsed;
+        IUavcanSerializationGenerator UavcanSerializationRulesGenerator { get; }
 
         void ParseUavcanFrame(object sender, UavcanFrame frame);
     }
