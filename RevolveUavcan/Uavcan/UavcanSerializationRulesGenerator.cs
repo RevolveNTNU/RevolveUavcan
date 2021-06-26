@@ -46,7 +46,7 @@ namespace RevolveUavcan.Uavcan
             }
             catch (InvalidOperationException)
             {
-                uavcanChannels = new List<UavcanChannel>();
+                uavcanChannels = null;
                 return false;
             }
         }
@@ -61,7 +61,7 @@ namespace RevolveUavcan.Uavcan
             }
             catch (InvalidOperationException)
             {
-                uavcanChannels = new List<UavcanChannel>();
+                uavcanChannels = null;
                 return false;
             }
         }
@@ -76,7 +76,7 @@ namespace RevolveUavcan.Uavcan
             }
             catch (InvalidOperationException)
             {
-                service = new UavcanService(new List<UavcanChannel>(), new List<UavcanChannel>(), 0, "");
+                service = null;
                 return false;
 
             }
@@ -92,7 +92,7 @@ namespace RevolveUavcan.Uavcan
             }
             catch (InvalidOperationException)
             {
-                service = new UavcanService(new List<UavcanChannel>(), new List<UavcanChannel>(), 0, "");
+                service = null;
                 return false;
             }
         }
@@ -138,77 +138,96 @@ namespace RevolveUavcan.Uavcan
             var outList = new List<UavcanChannel>();
             foreach (Field field in fieldList)
             {
-                if (field.type.Category == Category.COMPOUND)
+                switch (field.type.Category)
                 {
-                    var fieldName = (parentName != "") ? (parentName + "." + field.name) : (field.name);
-                    // Only the parent can be a service, so we are always interested in request fields here
-                    var list = GenerateSerializationRulesForType(field.type as CompoundType, false, fieldName);
-                    outList.AddRange(list);
-                }
-
-                else if (field.type.Category == Category.ARRAY)
-                {
-                    var arrayType = field.type as ArrayType;
-                    if (arrayType != null && arrayType.dataType.Category == Category.PRIMITIVE)
-                    {
-                        var primitiveType = arrayType.dataType as PrimitiveType;
-
-                        if (arrayType.mode == ArrayMode.DYNAMIC)
+                    case Category.COMPOUND:
                         {
-                            if (primitiveType != null)
-                            {
-                                outList.Add(new UavcanChannel(primitiveType.BaseType,
-                                    primitiveType.GetMaxBitLength(),
-                                    ((parentName != "")
-                                        ? (parentName + "." + field.name)
-                                        : (field.name)),
-                                    arrayType.maxSize, true));
-                            }
+                            var fieldName = (!string.IsNullOrEmpty(parentName)) ? (parentName + "." + field.name) : (field.name);
+                            outList.AddRange(GenerateSerializationRulesForType(field.type as CompoundType, false, fieldName));
+                            break;
                         }
-                        else
+                    case Category.ARRAY:
                         {
-                            for (int i = 0; i < arrayType.maxSize; i++)
+                            if (field.type is ArrayType arrayType)
                             {
-                                if (primitiveType != null)
+                                if (arrayType.dataType is PrimitiveType)
                                 {
-                                    outList.Add(new UavcanChannel(primitiveType.BaseType,
-                                        primitiveType.GetMaxBitLength(),
-                                        (parentName != "" ? (parentName + "." + field.name) : (field.name)) +
-                                        "_" + i));
+                                    outList.AddRange(GenerateSerializationRuleForPrimitiveArray(arrayType, field.name, parentName));
+                                }
+                                else if (arrayType.dataType is CompoundType)
+                                {
+                                    outList.AddRange(GenerateSerializationRuleForCompoundArray(arrayType, field.name, parentName));
                                 }
                             }
+                            break;
                         }
-                    }
-                    else
-                    {
-                        if (arrayType.dataType is CompoundType compoundType)
+                    case Category.VOID:
                         {
-                            for (int i = 0; i < arrayType.maxSize; i++)
-                            {
-                                var compoundRule = GenerateSerializationRulesForType(compoundType, false, $"{parentName}.{field.name}_{i}");
-                                outList.AddRange(compoundRule.Select(channel => new UavcanChannel(channel.Basetype,
-                                    channel.Size, channel.FieldName)));
-                            }
+                            outList.Add(new UavcanChannel(BaseType.VOID, field.type.GetMaxBitLength(), ""));
+                            break;
                         }
-                    }
-                }
-                else if (field.type.Category == Category.VOID)
-                {
-                    outList.Add(new UavcanChannel(BaseType.VOID, field.type.GetMaxBitLength(), ""));
-                }
-                else
-                {
-                    var fieldName = parentName != "" ? parentName + "." + field.name : field.name;
-
-                    if (field.type is PrimitiveType primitiveType)
-                    {
-                        outList.Add(new UavcanChannel(primitiveType.BaseType, primitiveType.GetMaxBitLength(),
-                            fieldName));
-                    }
+                    case Category.PRIMITIVE:
+                        {
+                            outList.Add(GenerateSerializationRuleForPrimitiveType(field, parentName));
+                            break;
+                        }
                 }
             }
 
             return outList;
+        }
+
+
+        private UavcanChannel GenerateSerializationRuleForPrimitiveType(Field field, string parentName)
+        {
+            var fieldName = parentName != "" ? parentName + "." + field.name : field.name;
+
+            if (field.type is PrimitiveType primitiveType)
+            {
+                return new UavcanChannel(primitiveType.BaseType, primitiveType.GetMaxBitLength(), fieldName);
+            }
+            return null;
+        }
+
+        private List<UavcanChannel> GenerateSerializationRuleForPrimitiveArray(ArrayType arrayType, string fieldName, string parentName)
+        {
+            var serializationRule = new List<UavcanChannel>();
+
+            if (arrayType != null)
+            {
+                var primitiveType = arrayType.dataType as PrimitiveType;
+
+                if (primitiveType != null)
+                {
+                    for (int i = 0; i < arrayType.maxSize; i++)
+                    {
+
+                        serializationRule.Add(new UavcanChannel(primitiveType.BaseType,
+                            primitiveType.GetMaxBitLength(),
+                            (!string.IsNullOrEmpty(parentName) ? (parentName + "." + fieldName) : (fieldName)) +
+                            "_" + i));
+                    }
+                    return serializationRule;
+                }
+            }
+            throw new UavcanException("Invalid array definition, cannot generate serialization rule");
+        }
+
+        private List<UavcanChannel> GenerateSerializationRuleForCompoundArray(ArrayType arrayType, string fieldName, string parentName)
+        {
+            var serializationRule = new List<UavcanChannel>();
+
+            if (arrayType.dataType is CompoundType compoundType)
+            {
+                for (int i = 0; i < arrayType.maxSize; i++)
+                {
+                    var compoundRule = GenerateSerializationRulesForType(compoundType, false, $"{parentName}.{fieldName}_{i}");
+                    serializationRule.AddRange(compoundRule.Select(channel => new UavcanChannel(channel.Basetype,
+                        channel.Size, channel.FieldName)));
+                }
+                return serializationRule;
+            }
+            throw new UavcanException("Invalid array definition, cannot generate serialization rule");
         }
     }
 }
