@@ -17,7 +17,7 @@ namespace RevolveUavcanTest.Dsdl
         [TestInitialize]
         public void Setup()
         {
-            parser = new DsdlParser(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestFiles"));
+            parser = new DsdlParser(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestFiles", "TestDsdl"));
         }
 
         [TestMethod]
@@ -30,7 +30,7 @@ namespace RevolveUavcanTest.Dsdl
             Assert.IsNotNull(result);
 
             // Verify full name
-            Assert.AreEqual("TestDsdl.PitotTube", result.FullName);
+            Assert.AreEqual("PitotTube", result.FullName);
 
             // Verify fields and constants
             Assert.AreEqual(2, result.RequestFields.Count);
@@ -65,7 +65,7 @@ namespace RevolveUavcanTest.Dsdl
             Assert.IsNotNull(result);
 
             // Verify full name
-            Assert.AreEqual("TestDsdl.control.MzRefDebug", result.FullName);
+            Assert.AreEqual("control.MzRefDebug", result.FullName);
 
             // Verify fields and constants
             Assert.AreEqual(3, result.RequestFields.Count);
@@ -81,7 +81,7 @@ namespace RevolveUavcanTest.Dsdl
             {
                 if (field.name != "closed_loop_yaw_ref")
                 {
-                    Assert.AreEqual("TestDsdl.control.PIDControl", field.type.FullName);
+                    Assert.AreEqual("control.PIDControl", field.type.FullName);
                     Assert.AreEqual(Category.COMPOUND, field.type.Category);
                     Assert.AreEqual(false, field.isConstant);
                     Assert.AreEqual(96, field.type.GetMaxBitLength());
@@ -97,7 +97,7 @@ namespace RevolveUavcanTest.Dsdl
 
             Assert.AreEqual(1, parser.ParsedDsdlDict.Count);
 
-            Assert.IsTrue(parser.ParsedDsdlDict.TryGetValue("TestDsdl.control.PIDControl", out var pidControl));
+            Assert.IsTrue(parser.ParsedDsdlDict.TryGetValue("control.PIDControl", out var pidControl));
 
             Assert.AreEqual(3, pidControl.RequestFields.Count);
             Assert.AreEqual(0, pidControl.ResponseFields.Count);
@@ -110,6 +110,38 @@ namespace RevolveUavcanTest.Dsdl
         }
 
         [TestMethod]
+        [DeploymentItem("12.DataMessage.1.0.uavcan", "TestFiles/TestDsdl/padding")]
+        [DeploymentItem("DataType.1.0.uavcan", "TestFiles/TestDsdl/padding")]
+        public void ParseValidDsdlMessageWithPaddingTest()
+        {
+            var source = File.ReadAllText(@"TestFiles/TestDsdl/padding/12.DataMessage.1.0.uavcan");
+
+            var result = parser.ParseSource(@"TestFiles/TestDsdl/padding/12.DataMessage.1.0.uavcan", source);
+            Assert.IsNotNull(result);
+
+            // Verify full name
+            Assert.AreEqual("padding.DataMessage", result.FullName);
+
+            // This message should contain the three fields, as well as void3 padding before and after the compound type:
+            // first_field padding second_field.data padding third_field
+
+            // Verify fields and constants
+            Assert.AreEqual(5, result.RequestFields.Count);
+            Assert.AreEqual(0, result.ResponseFields.Count);
+            Assert.AreEqual(0, result.RequestConstants.Count);
+            Assert.AreEqual(0, result.ResponseConstants.Count);
+
+            Assert.AreEqual("first_field", result.RequestFields[0].name);
+            Assert.AreEqual(Category.VOID, result.RequestFields[1].type.Category);
+            Assert.AreEqual(3, result.RequestFields[1].type.GetMaxBitLength());
+            Assert.AreEqual("second_field", result.RequestFields[2].name);
+            Assert.AreEqual(Category.VOID, result.RequestFields[3].type.Category);
+            Assert.AreEqual(3, result.RequestFields[3].type.GetMaxBitLength());
+            Assert.AreEqual("third_field", result.RequestFields[4].name);
+        }
+
+
+        [TestMethod]
         [DeploymentItem("35.RTDS.1.0.uavcan", "TestFiles/TestDsdl/dashboard")]
         public void ParseValidDsdlServiceTest()
         {
@@ -119,7 +151,7 @@ namespace RevolveUavcanTest.Dsdl
             Assert.IsNotNull(result);
 
             // Verify full name
-            Assert.AreEqual("TestDsdl.dashboard.RTDS", result.FullName);
+            Assert.AreEqual("dashboard.RTDS", result.FullName);
 
             // Verify fields and constants
             Assert.AreEqual(1, result.RequestFields.Count);
@@ -160,7 +192,7 @@ namespace RevolveUavcanTest.Dsdl
             Assert.IsNotNull(result);
 
             // Verify full name
-            Assert.AreEqual("TestDsdl.common.seis", result.FullName);
+            Assert.AreEqual("common.seis", result.FullName);
 
             // Verify constants
             Assert.AreEqual(7, result.RequestConstants.Count);
@@ -188,10 +220,12 @@ namespace RevolveUavcanTest.Dsdl
         [DeploymentItem("PIDControl.1.0.uavcan", "TestFiles/TestDsdl/control")]
         [DeploymentItem("60.cinco.1.0.uavcan", "TestFiles/TestDsdl/common")]
         [DeploymentItem("seis.1.0.uavcan", "TestFiles/TestDsdl/common")]
+        [DeploymentItem("DataType.1.0.uavcan", "TestFiles/TestDsdl/data_messages")]
+        [DeploymentItem("12.DataMessage.1.0.uavcan", "TestFiles/TestDsdl/data_messages")]
         public void ParseFullNamespaceTest()
         {
             parser.ParseAllDirectories();
-            List<string> dsdlNames = new List<string> { "TestDsdl.PitotTube", "TestDsdl.dashboard.RTDS", "TestDsdl.control.MzRefDebug", "TestDsdl.control.PIDControl", "TestDsdl.common.cinco", "TestDsdl.common.seis" };
+            List<string> dsdlNames = new List<string> { "PitotTube", "dashboard.RTDS", "control.MzRefDebug", "control.PIDControl", "common.cinco", "common.seis", "padding.DataType", "padding.DataMessage" };
 
             Assert.AreEqual(dsdlNames.Count, parser.ParsedDsdlDict.Count);
 
@@ -215,10 +249,24 @@ namespace RevolveUavcanTest.Dsdl
         [DataRow("int8 command\n---\nint8 command2\n---\nint8 command3", "413.PitotTube.1.0.uavcan", DisplayName = "Two service seperators")]
         [DataRow("int8 command\nuint8 command", "413.PitotTube.1.0.uavcan", DisplayName = "Duplicate field name")]
         [DataRow("int8 command", "413.PitotTube.1.0", DisplayName = "Invalid filename")]
+        [DataRow("int8", "413.PitotTube.1.0", DisplayName = "Invalid syntax")]
+        [DataRow("int8 command command", "413.PitotTube.1.0", DisplayName = "Invalid syntax")]
         public void ThrowDsdlExceptionTest(string dsdlRow, string filename)
         {
             var path = $"{Path.Join("TestFiles", "TestDsdl", filename)}";
             Assert.ThrowsException<DsdlException>(() => parser.ParseSource(path, dsdlRow));
+        }
+
+        [TestMethod]
+        [DataRow(@"TestFiles/FaultyDsdl/12.bar.A.2.uavcan", DisplayName = "Invalid version syntax")]
+        [DataRow(@"TestFiles/FaultyDsdl/12,2.foo.1.0.uavcan", DisplayName = "Invalid subject Id")]
+        public void ThrowDsdlExceptionOnInvalidFilenameFormat(string filename)
+        {
+            var dsdlParser = new DsdlParser((Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestFiles")));
+
+            var source = File.ReadAllText(filename);
+
+            Assert.ThrowsException<DsdlException>(() => parser.ParseSource(filename, source));
         }
     }
 }

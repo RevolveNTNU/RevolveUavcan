@@ -1,0 +1,7 @@
+﻿# A message, that requires padding before and after the compound type
+
+uint5 first_field
+
+padding.DataType.1.0 second_field
+
+uint5 third_field

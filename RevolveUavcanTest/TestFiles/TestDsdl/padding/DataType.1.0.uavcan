@@ -1,0 +1,3 @@
+﻿# A compound type that will require padding afterwards
+
+uint5 data
