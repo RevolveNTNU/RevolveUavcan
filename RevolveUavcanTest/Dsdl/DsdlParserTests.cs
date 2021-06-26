@@ -48,7 +48,7 @@ namespace RevolveUavcanTest.Dsdl
 
             var pressureDeltaField = result.RequestFields[0];
 
-            Assert.AreEqual("saturated float", pressureDeltaField.type.FullName);
+            Assert.AreEqual("saturated float32", pressureDeltaField.type.FullName);
             Assert.AreEqual(Category.PRIMITIVE, pressureDeltaField.type.Category);
             Assert.AreEqual(false, pressureDeltaField.isConstant);
             Assert.AreEqual(32, pressureDeltaField.type.GetMaxBitLength());
@@ -88,7 +88,7 @@ namespace RevolveUavcanTest.Dsdl
                 }
                 else
                 {
-                    Assert.AreEqual("saturated float", field.type.FullName);
+                    Assert.AreEqual("saturated float32", field.type.FullName);
                     Assert.AreEqual(Category.PRIMITIVE, field.type.Category);
                     Assert.AreEqual(false, field.isConstant);
                     Assert.AreEqual(32, field.type.GetMaxBitLength());
@@ -132,7 +132,9 @@ namespace RevolveUavcanTest.Dsdl
             Assert.AreEqual(0, result.ResponseConstants.Count);
 
             Assert.AreEqual("first_field", result.RequestFields[0].name);
+            Assert.AreEqual("saturated uint5 first_field", result.RequestFields[0].ToString());
             Assert.AreEqual(Category.VOID, result.RequestFields[1].type.Category);
+            Assert.AreEqual("void3", result.RequestFields[1].ToString());
             Assert.AreEqual(3, result.RequestFields[1].type.GetMaxBitLength());
             Assert.AreEqual("second_field", result.RequestFields[2].name);
             Assert.AreEqual(Category.VOID, result.RequestFields[3].type.Category);
@@ -169,14 +171,14 @@ namespace RevolveUavcanTest.Dsdl
 
             var command = result.RequestFields[0];
 
-            Assert.AreEqual("saturated uint", command.type.FullName);
+            Assert.AreEqual("saturated uint8", command.type.FullName);
             Assert.AreEqual(Category.PRIMITIVE, command.type.Category);
             Assert.AreEqual(false, command.isConstant);
             Assert.AreEqual(8, command.type.GetMaxBitLength());
 
             var success = result.ResponseFields[0];
 
-            Assert.AreEqual("saturated uint", success.type.FullName);
+            Assert.AreEqual("saturated uint8", success.type.FullName);
             Assert.AreEqual(Category.PRIMITIVE, success.type.Category);
             Assert.AreEqual(false, success.isConstant);
             Assert.AreEqual(8, success.type.GetMaxBitLength());
