@@ -38,8 +38,8 @@ namespace RevolveUavcanTest.Uavcan
             Assert.IsTrue(rulesGenerator.TryGetSerializationRuleForMessage(expectedSubjectId, out var idRules));
             Assert.IsTrue(rulesGenerator.TryGetSerializationRuleForMessage(expectedMessageName, out var nameRules));
 
-            Assert.IsFalse(rulesGenerator.TryGetSerializationRuleForService(wrongSubjectId, out var _));
-            Assert.IsFalse(rulesGenerator.TryGetSerializationRuleForService(wrongMessageName, out var _));
+            Assert.IsFalse(rulesGenerator.TryGetSerializationRuleForMessage(wrongSubjectId, out var _));
+            Assert.IsFalse(rulesGenerator.TryGetSerializationRuleForMessage(wrongMessageName, out var _));
 
             CollectionAssert.AreEqual(expectedSerializationRule, idRules);
             CollectionAssert.AreEqual(expectedSerializationRule, nameRules);
@@ -156,7 +156,6 @@ namespace RevolveUavcanTest.Uavcan
 
             CollectionAssert.AreEqual(expectedRequestSerializationRule, idRules.RequestFields);
             CollectionAssert.AreEqual(expectedResponseSerializationRule, idRules.ResponseFields);
-
             CollectionAssert.AreEqual(expectedRequestSerializationRule, nameRules.RequestFields);
             CollectionAssert.AreEqual(expectedResponseSerializationRule, nameRules.ResponseFields);
         }
