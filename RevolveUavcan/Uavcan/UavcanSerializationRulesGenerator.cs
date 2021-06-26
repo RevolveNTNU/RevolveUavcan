@@ -22,17 +22,17 @@ namespace RevolveUavcan.Uavcan
             ServiceSerializationRules = new Dictionary<Tuple<uint, string>, UavcanService>();
         }
 
-        public bool Init()
+        /// <inheritdoc/>
+        public void Init()
         {
             try
             {
                 DsdlParser.ParseAllDirectories();
                 GenerateSerializationRulesForAllDsdl();
-                return true;
             }
-            catch (DsdlException)
+            catch (DsdlException e)
             {
-                return false;
+                throw new UavcanException(e.ToString());
             }
         }
 

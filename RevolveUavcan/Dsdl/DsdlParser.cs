@@ -16,10 +16,7 @@ namespace RevolveUavcan.Dsdl
     {
         public Dictionary<string, CompoundType> ParsedDsdlDict { get; private set; } = new Dictionary<string, CompoundType>();
 
-        /// <summary>
-        /// Where the DSDL files to parse are located, defaults to the standard
-        /// path where the files from GitHub are located
-        /// </summary>
+        /// <inheritdoc/>
         public string DsdlPath { get; set; }
 
         public DsdlParser(string dsdlPath)
@@ -27,6 +24,7 @@ namespace RevolveUavcan.Dsdl
             DsdlPath = dsdlPath;
         }
 
+        /// <inheritdoc/>
         public void ParseAllDirectories()
         {
             // Reset the dictionary of parsed dsdl rules
@@ -119,12 +117,7 @@ namespace RevolveUavcan.Dsdl
         }
 
 
-        /// <summary>
-        /// Parse the entire source file
-        /// </summary>
-        /// <param name="filename"></param>
-        /// <param name="sourceText"></param>
-        /// <returns></returns>
+        /// <inheritdoc/>
         public CompoundType ParseSource(string filename, string sourceText)
         {
             (var fullTypeName, Tuple<int, int> version, var defaultDtid) =
