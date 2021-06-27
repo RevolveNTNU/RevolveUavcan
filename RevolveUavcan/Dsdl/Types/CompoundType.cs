@@ -40,7 +40,7 @@ namespace RevolveUavcan.Dsdl.Types
             ResponseConstants = new List<Constant>();
         }
 
-        private int computeMaxLen(List<Field> fields, bool union)
+        private int ComputeMaxLen(List<Field> fields, bool union)
         {
             if (fields.Count == 0)
             {
@@ -60,7 +60,7 @@ namespace RevolveUavcan.Dsdl.Types
             return lengths.Sum();
         }
 
-        private int computeMinLen(List<Field> fields, bool union)
+        private int ComputeMinLen(List<Field> fields, bool union)
         {
             if (fields.Count == 0)
             {
@@ -83,13 +83,13 @@ namespace RevolveUavcan.Dsdl.Types
 
         public override string ToString() => throw new System.NotImplementedException();
 
-        public int GetMaxBitLengthRequest() => computeMaxLen(RequestFields, RequestUnion);
+        public int GetMaxBitLengthRequest() => ComputeMaxLen(RequestFields, RequestUnion);
 
-        public int GetMaxBitLengthResponse() => computeMaxLen(ResponseFields, ResponseUnion);
+        public int GetMaxBitLengthResponse() => ComputeMaxLen(ResponseFields, ResponseUnion);
 
-        public int GetMinBitLengthRequest() => computeMinLen(RequestFields, RequestUnion);
+        public int GetMinBitLengthRequest() => ComputeMinLen(RequestFields, RequestUnion);
 
-        public int GetMinBitLengthResponse() => computeMinLen(ResponseFields, ResponseUnion);
+        public int GetMinBitLengthResponse() => ComputeMinLen(ResponseFields, ResponseUnion);
 
         public override int GetMinBitLength() => GetMinBitLengthRequest();
 

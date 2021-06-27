@@ -70,10 +70,10 @@ namespace RevolveUavcan.Dsdl.Types
                     max = 65504;
                     break;
                 case 32:
-                    max = 3.40282346638528859812 * Math.Pow(10, 38);
+                    max = float.MaxValue;
                     break;
                 case 64:
-                    max = 1.79769313486231570815 * Math.Pow(10, 308);
+                    max = double.MaxValue;
                     break;
                 default:
                     throw new DsdlException("Bitsize out of range [16, 32, 64]");
