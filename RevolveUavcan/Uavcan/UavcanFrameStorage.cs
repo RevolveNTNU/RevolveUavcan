@@ -59,15 +59,8 @@ namespace RevolveUavcan.Uavcan
 
                 // This will only run after evaluating that we have either a frame type of
                 // SingleFrame or MultiFrameEnd
-                if (!_transferIdBuffer.TryGetValue(frame.TransferId, out var subjectIdDictionary))
-                {
-                    // If we dont have a frame in the storage with the transation ID of the frame,
-                    // something must have gone wrong during storage. Cannot pass it on then.
-                    _logger
-                        .LogWarning(
-                            $"Error occured in frame storage. No matching frame for Subject ID {frame.SubjectId} was found.");
-                    return;
-                }
+
+                var subjectIdDictionary = _transferIdBuffer[frame.TransferId];
 
                 if (subjectIdDictionary.TryGetValue(frame.SubjectId, out var frameFromSubjectId))
                 {
@@ -147,11 +140,7 @@ namespace RevolveUavcan.Uavcan
                 // If we have a MultiFrame end, we validate the toggle bit to decide to append / remove the frame.
                 case UavcanFrame.FrameType.MultiFrameEnd:
                     {
-                        // Transfer ID does not exist in the corresponding buffer
-                        if (!_transferIdBuffer.TryGetValue(frame.TransferId, out var subjectIdDictionary))
-                        {
-                            return;
-                        }
+                        var subjectIdDictionary = _transferIdBuffer[frame.TransferId];
 
                         // Subject ID does not exist in the corresponding buffer
                         if (!subjectIdDictionary.TryGetValue(frame.SubjectId, out var frameFromSubjectId))
