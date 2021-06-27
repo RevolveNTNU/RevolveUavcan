@@ -4,27 +4,33 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>8.0</LangVersion>
     <PackageId>RevolveUavcan</PackageId>
-    <Version>0.0.7</Version>
+    <Version>0.0.0</Version>
     <Authors>Revolve NTNU</Authors>
     <Product>RevolveUavcan</Product>
-    <Description>A C# implementation of UAVCAN, including a runtime dsdl interpreter.</Description>
+    <Description>A limited C# implementation of UAVCAN, including dynamic serialization and deserialization using a runtime DSDL interpreter.</Description>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Copyright />
     <ApplicationIcon>Icon.ico</ApplicationIcon>
     <PackageLicenseFile></PackageLicenseFile>
     <PackageProjectUrl>https://revolve.no</PackageProjectUrl>
-    <PackageIcon></PackageIcon>
+    <PackageIcon>logo.png</PackageIcon>
     <RepositoryUrl>https://github.com/RevolveNTNU/RevolveUavcan</RepositoryUrl>
-    <RepositoryType>Public</RepositoryType>
-    <PackageTags>UAVCAN</PackageTags>
+    <RepositoryType>Open source</RepositoryType>
+    <PackageTags>DSDL dsdl uavcan UAVCAN RevolveNTNU Revolve</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <AssemblyVersion>0.0.7.0</AssemblyVersion>
-    <FileVersion>0.0.7.0</FileVersion>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+    <FileVersion>0.0.0.0</FileVersion>
+    <NeutralLanguage></NeutralLanguage>
+    <PackageIconUrl />
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="Icon.ico" />
     <None Remove="Icon.ico" />
+    <None Include="Assets\logo.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
