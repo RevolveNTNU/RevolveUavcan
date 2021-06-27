@@ -135,7 +135,7 @@ namespace RevolveUavcanTest.Tools
 
         [TestMethod]
         [DynamicData(nameof(GetFloatAndDoubleInvalidData), DynamicDataSourceType.Method)]
-        public void GetFloatAndDoubleInvalidArgsTest(BitArray bitArray, double expectedResult)
+        public void GetFloatAndDoubleInvalidArgsTest(BitArray bitArray)
         {
             Assert.ThrowsException<ArgumentException>(() => bitArray.GetFloatFromBitArray());
         }

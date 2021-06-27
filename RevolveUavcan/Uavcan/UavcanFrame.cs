@@ -1,4 +1,4 @@
-﻿using RevolveUavcan.Tools;
+using RevolveUavcan.Tools;
 using System.Collections;
 using System.Linq;
 
@@ -238,14 +238,18 @@ namespace RevolveUavcan.Uavcan
         /// <param name="nextFrame">The byte array to append to the byte array in UavcanFrame</param>
         public void AppendFrame(UavcanFrame nextFrame)
         {
-            byte[] result = new byte[Data.Length + nextFrame.Data.Length];
-            System.Buffer.BlockCopy(Data, 0, result, 0, Data.Length);
-            System.Buffer.BlockCopy(nextFrame.Data, 0, result, Data.Length, nextFrame.Data.Length);
+            if (Type == FrameType.SingleFrame || nextFrame.Type == FrameType.SingleFrame)
+            {
+                throw new UavcanException("Cannot append SingleFrames");
+            }
+            IsStartOfTransfer = false;
+            byte[] result = new byte[DataLength + nextFrame.DataLength];
+            System.Buffer.BlockCopy(Data, 0, result, 0, DataLength);
+            System.Buffer.BlockCopy(nextFrame.Data, 0, result, DataLength, nextFrame.DataLength);
 
             ToggleBit = nextFrame.ToggleBit;
             Data = result;
-
-            IsCompleted = nextFrame.Type == FrameType.SingleFrame || nextFrame.Type == FrameType.MultiFrameEnd;
+            IsCompleted = nextFrame.Type == FrameType.MultiFrameEnd;
             Type = nextFrame.Type;
         }
 
@@ -267,6 +271,12 @@ namespace RevolveUavcan.Uavcan
             if (!IsStartOfTransfer && IsEndOfTransfer)
             {
                 return FrameType.MultiFrameEnd;
+            }
+
+            // In UAVCAN v1, Toggle bit is 1 for the first frame. In Uavcan v0, the Toggle bit is 0
+            if (IsStartOfTransfer && !ToggleBit)
+            {
+                throw new UavcanException("This Uavcan implementation does not support UAVCAN v0");
             }
 
             // In this case, MultiFrame is not yet finished and will receive more

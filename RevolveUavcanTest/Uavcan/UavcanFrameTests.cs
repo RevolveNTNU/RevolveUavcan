@@ -25,6 +25,7 @@ namespace RevolveUavcanTest.Uavcan
         {
             var uavcanFrame = new UavcanFrame(headerBits, payload, 0);
 
+            Assert.AreEqual(0, uavcanFrame.TimeStamp);
             Assert.AreEqual(expectedSubjectId, uavcanFrame.SubjectId);
             Assert.AreEqual(expectedIsServiceNotMessage, uavcanFrame.IsServiceNotMessage);
             Assert.AreEqual(expectedIsRequestNotResponse, uavcanFrame.IsRequestNotResponse);
@@ -150,5 +151,55 @@ namespace RevolveUavcanTest.Uavcan
                 TransferId = 2
             }, (byte)226};
         }
+
+
+        [TestMethod]
+        [DynamicData(nameof(GetUavcanPayloadBytes), DynamicDataSourceType.Method)]
+        public void UavcanFrameConstructorMultiframeTest(byte[] payload, FrameType expectedFrameType)
+        {
+            var frame = new UavcanFrame(new BitArray(32), payload, 0);
+            Assert.AreEqual(expectedFrameType, frame.Type);
+        }
+
+
+        public static IEnumerable<object[]> GetUavcanPayloadBytes()
+        {
+            yield return new object[] { new byte[] { 32, 0b10100000 }, FrameType.MultiFrameStart };
+            yield return new object[] { new byte[] { 32, 0b00000000 }, FrameType.MultiFrameMiddle };
+            yield return new object[] { new byte[] { 32, 0b00100000 }, FrameType.MultiFrameMiddle };
+            yield return new object[] { new byte[] { 32, 0b01000000 }, FrameType.MultiFrameEnd };
+            yield return new object[] { new byte[] { 32, 0b01100000 }, FrameType.MultiFrameEnd };
+        }
+
+
+        [TestMethod]
+        [DynamicData(nameof(GetInvalidUavcanPayloadBytes), DynamicDataSourceType.Method)]
+        public void UavcanFrameIllegalTailByteThrows(byte[] payload)
+        {
+            Assert.ThrowsException<UavcanException>(() => new UavcanFrame(new BitArray(32), payload, 0));
+        }
+
+        public static IEnumerable<object[]> GetInvalidUavcanPayloadBytes()
+        {
+            yield return new object[] { new byte[] { 32, 0b10000000 } };
+            yield return new object[] { new byte[] { 32, 0b11000000 } };
+        }
+
+
+        [TestMethod]
+        [DynamicData(nameof(GetSingleFrames), DynamicDataSourceType.Method)]
+        public void UavcanFrameInvalidAppendThrows(UavcanFrame frame1, UavcanFrame frame2)
+        {
+            Assert.ThrowsException<UavcanException>(() => frame1.AppendFrame(frame2));
+        }
+        public static IEnumerable<object[]> GetSingleFrames()
+        {
+            yield return new object[] { new UavcanFrame { Type = FrameType.SingleFrame }, new UavcanFrame { Type = FrameType.SingleFrame } };
+            yield return new object[] { new UavcanFrame { Type = FrameType.SingleFrame }, new UavcanFrame { Type = FrameType.MultiFrameMiddle } };
+            yield return new object[] { new UavcanFrame { Type = FrameType.SingleFrame }, new UavcanFrame { Type = FrameType.MultiFrameEnd } };
+            yield return new object[] { new UavcanFrame { Type = FrameType.MultiFrameMiddle }, new UavcanFrame { Type = FrameType.SingleFrame } };
+            yield return new object[] { new UavcanFrame { Type = FrameType.MultiFrameEnd }, new UavcanFrame { Type = FrameType.SingleFrame } };
+        }
+
     }
 }
