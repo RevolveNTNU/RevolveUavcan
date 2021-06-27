@@ -45,6 +45,8 @@ namespace RevolveUavcanTest.Uavcan
 
             parser.ParseUavcanFrame(null, frame);
 
+            Assert.AreEqual(frame, packets[0].UavcanFrame);
+
             Assert.IsTrue(packets.Count == 1);
 
             var parsedDataDict = packets.First().ParsedDataDict;

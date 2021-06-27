@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using RevolveUavcan.Communication;
@@ -31,12 +31,14 @@ namespace RevolveUavcanTest.Uavcan
 
             List<UavcanFrame> uavcanFrames = new List<UavcanFrame>();
 
+            uavcanFrameStorage.RegisterOnDataEvent(uavcanCommMock.Object);
+
             uavcanFrameStorage.UavcanPacketReceived += delegate (object sender, UavcanFrame frame)
             {
                 uavcanFrames.Add(frame);
             };
 
-            uavcanFrameStorage.StoreFrame(uavcanCommMock, frame);
+            uavcanCommMock.Raise(_ => _.UavcanFrameReceived += null, this, frame);
 
             Assert.AreEqual(1, uavcanFrames.Count);
 
@@ -315,6 +317,103 @@ namespace RevolveUavcanTest.Uavcan
                     }
                 }
             };
+        }
+
+        [TestMethod]
+        public void ResetFrameStorageBufferTest()
+        {
+            var data = new byte[] { 215, 163, 0, 67 };
+            uint subjectId = 420;
+            byte transferId = 5;
+
+            UavcanFrameStorage uavcanFrameStorage = new UavcanFrameStorage(frameStorageLoggerMock.Object);
+
+            List<UavcanFrame> uavcanFrames = new List<UavcanFrame>();
+
+            uavcanFrameStorage.UavcanPacketReceived += delegate (object sender, UavcanFrame frame)
+                {
+                    uavcanFrames.Add(frame);
+                };
+
+
+            var frame1 = new UavcanFrame
+            {
+                Data = data,
+                TransferId = transferId,
+                SubjectId = subjectId,
+                IsStartOfTransfer = true,
+                IsEndOfTransfer = false,
+                ToggleBit = true,
+                Type = UavcanFrame.FrameType.MultiFrameStart
+            };
+
+            var frame1Copy = new UavcanFrame
+            {
+                Data = data,
+                TransferId = transferId,
+                SubjectId = subjectId,
+                IsStartOfTransfer = true,
+                IsEndOfTransfer = false,
+                ToggleBit = true,
+                Type = UavcanFrame.FrameType.MultiFrameStart
+            };
+
+            var frame2 = new UavcanFrame
+            {
+                Data = data,
+                TransferId = transferId,
+                SubjectId = subjectId,
+                IsStartOfTransfer = false,
+                IsEndOfTransfer = false,
+                ToggleBit = false,
+                Type = UavcanFrame.FrameType.MultiFrameMiddle
+            };
+
+            var frame2Copy = new UavcanFrame
+            {
+                Data = data,
+                TransferId = transferId,
+                SubjectId = subjectId,
+                IsStartOfTransfer = false,
+                IsEndOfTransfer = false,
+                ToggleBit = false,
+                Type = UavcanFrame.FrameType.MultiFrameMiddle
+            };
+
+            var frame3 = new UavcanFrame
+            {
+                Data = data,
+                TransferId = transferId,
+                SubjectId = subjectId,
+                IsStartOfTransfer = false,
+                IsEndOfTransfer = true,
+                ToggleBit = true,
+                Type = UavcanFrame.FrameType.MultiFrameEnd
+            };
+
+            var frame4 = new UavcanFrame
+            {
+                Data = data,
+                TransferId = 7,
+                SubjectId = subjectId,
+                IsStartOfTransfer = false,
+                IsEndOfTransfer = true,
+                ToggleBit = true,
+                Type = UavcanFrame.FrameType.MultiFrameEnd
+            };
+
+
+            uavcanFrameStorage.StoreFrame(uavcanCommMock, frame1);
+            uavcanFrameStorage.StoreFrame(uavcanCommMock, frame2);
+            uavcanFrameStorage.StoreFrame(uavcanCommMock, frame1Copy); // Try to store twice, should reset and only store once
+            uavcanFrameStorage.StoreFrame(uavcanCommMock, frame2Copy);
+            uavcanFrameStorage.StoreFrame(uavcanCommMock, frame3);
+
+            Assert.AreEqual(1, uavcanFrames.Count);
+
+            uavcanFrameStorage.StoreFrame(uavcanCommMock, frame4); // Try to add an Endframe, should not be added 
+
+            Assert.AreEqual(1, uavcanFrames.Count);
         }
     }
 }

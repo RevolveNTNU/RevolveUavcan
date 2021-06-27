@@ -251,8 +251,10 @@ namespace RevolveUavcanTest.Dsdl
         [DataRow("int8 command\n---\nint8 command2\n---\nint8 command3", "413.PitotTube.1.0.uavcan", DisplayName = "Two service seperators")]
         [DataRow("int8 command\nuint8 command", "413.PitotTube.1.0.uavcan", DisplayName = "Duplicate field name")]
         [DataRow("int8 command", "413.PitotTube.1.0", DisplayName = "Invalid filename")]
-        [DataRow("int8", "413.PitotTube.1.0", DisplayName = "Invalid syntax")]
-        [DataRow("int8 command command", "413.PitotTube.1.0", DisplayName = "Invalid syntax")]
+        [DataRow("int8", "413.PitotTube.1.0.uavcan", DisplayName = "Invalid syntax")]
+        [DataRow("int8 command command", "413.PitotTube.1.0.uavcan", DisplayName = "Invalid syntax")]
+        [DataRow("truncated int8", "413.PitotTube.1.0.uavcan", DisplayName = "Invalid syntax, missing field name")]
+        [DataRow("saturated int8", "413.PitotTube.1.0.uavcan", DisplayName = "Invalid syntax, missing field name")]
         public void ThrowDsdlExceptionTest(string dsdlRow, string filename)
         {
             var path = $"{Path.Join("TestFiles", "TestDsdl", filename)}";

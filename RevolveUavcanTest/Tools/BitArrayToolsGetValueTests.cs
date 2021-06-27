@@ -103,6 +103,18 @@ namespace RevolveUavcanTest.Tools
             yield return new object[] { new BitArray(128) };
         }
 
+        [TestMethod]
+        [DynamicData(nameof(GetUintInvalidData), DynamicDataSourceType.Method)]
+        public void GetUintInvalidArgsTest(BitArray bitArray)
+        {
+            Assert.ThrowsException<ArgumentException>(() => bitArray.GetUIntFromBitArray());
+        }
+
+        public static IEnumerable<object[]> GetUintInvalidData()
+        {
+            yield return new object[] { new BitArray(69) };
+        }
+
 
         [DataTestMethod]
         [DynamicData(nameof(GetFloatAndDoubleValidData), DynamicDataSourceType.Method)]
@@ -120,5 +132,18 @@ namespace RevolveUavcanTest.Tools
             yield return new object[] { new BitArray(BitConverter.GetBytes(128F)), 128F };
         }
 
+
+        [TestMethod]
+        [DynamicData(nameof(GetFloatAndDoubleInvalidData), DynamicDataSourceType.Method)]
+        public void GetFloatAndDoubleInvalidArgsTest(BitArray bitArray)
+        {
+            Assert.ThrowsException<ArgumentException>(() => bitArray.GetFloatFromBitArray());
+        }
+
+        public static IEnumerable<object[]> GetFloatAndDoubleInvalidData()
+        {
+            yield return new object[] { new BitArray(42) };
+            yield return new object[] { new BitArray(69) };
+        }
     }
 }
