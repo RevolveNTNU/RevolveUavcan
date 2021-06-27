@@ -29,7 +29,7 @@ jobs:
           # Ensure file is written in UTF8
           echo "::set-output name=version::$version"
       - name: Create NuGet package  
-        run: dotnet pack -v normal -c Release --include-source -p:PackageVersion=${{steps.get-version.outputs.version}} -o nupkg RevolveUavcan/RevolveUavcan.*proj
+        run: dotnet pack -v normal -c Release --include-source -p:Version=${{steps.get-version.outputs.version}} -o nupkg RevolveUavcan/RevolveUavcan.*proj
 
       - name: Push package to NuGet
         run: dotnet nuget push /home/runner/work/RevolveUavcan/RevolveUavcan/nupkg/RevolveUavcan.${{steps.get-version.outputs.version}}.nupkg --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
