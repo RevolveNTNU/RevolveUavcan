@@ -21,5 +21,8 @@ namespace RevolveUavcan.Uavcan.Interfaces
         bool TryGetSerializationRuleForMessage(string messageName, out List<UavcanChannel> uavcanChannels);
         bool TryGetSerializationRuleForService(uint subjectId, out UavcanService service);
         bool TryGetSerializationRuleForService(string serviceName, out UavcanService service);
+        public string GetMessageNameFromSubjectId(uint subjectId);
+        public string GetServiceNameFromSubjectId(uint subjectId);
+
     }
 }
