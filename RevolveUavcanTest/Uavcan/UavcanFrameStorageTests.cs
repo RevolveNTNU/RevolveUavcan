@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using RevolveUavcan.Communication;
@@ -31,12 +31,14 @@ namespace RevolveUavcanTest.Uavcan
 
             List<UavcanFrame> uavcanFrames = new List<UavcanFrame>();
 
+            uavcanFrameStorage.RegisterOnDataEvent(uavcanCommMock.Object);
+
             uavcanFrameStorage.UavcanPacketReceived += delegate (object sender, UavcanFrame frame)
             {
                 uavcanFrames.Add(frame);
             };
 
-            uavcanFrameStorage.StoreFrame(uavcanCommMock, frame);
+            uavcanCommMock.Raise(_ => _.UavcanFrameReceived += null, this, frame);
 
             Assert.AreEqual(1, uavcanFrames.Count);
 
