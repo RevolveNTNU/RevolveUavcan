@@ -73,6 +73,11 @@ namespace RevolveUavcan.Uavcan
 
         public UavcanFrame(BitArray headerBits, byte[] payload, long timeStamp)
         {
+            if (headerBits.Count < 29)
+            {
+                throw new UavcanException("UAVCAN requires the use of an extended CAN header, with 29 bits");
+            }
+
             // Initialize properties
             IsServiceNotMessage = headerBits.Get(IS_SERVICE_NOT_MESSAGE_INDEX);
             TimeStamp = timeStamp;
@@ -100,7 +105,16 @@ namespace RevolveUavcan.Uavcan
             DecodeTailByte(payload.Last());
 
             // Get FrameType and evaluate whether it is completed
-            Type = GetFrameType();
+
+            try
+            {
+                Type = GetFrameType();
+            }
+            catch (UavcanException e)
+            {
+                throw new UavcanException($"Unable to initialize new UAVCAN Frame, with: subjectID={SubjectId}, sourceNode={SourceNodeId}, tailByte={payload[payload.Length - 1]}, isService={IsServiceNotMessage}", e);
+            }
+
             IsCompleted = Type == FrameType.SingleFrame;
 
             // Remove tail byte from initial data
@@ -241,6 +255,10 @@ namespace RevolveUavcan.Uavcan
             if (Type == FrameType.SingleFrame || nextFrame.Type == FrameType.SingleFrame)
             {
                 throw new UavcanException("Cannot append SingleFrames");
+            }
+            if (ToggleBit == nextFrame.ToggleBit)
+            {
+                throw new UavcanException("Toggle bits are equal, meaning a frame is lost inbetween! Corrupt frame should be discarded.");
             }
             IsStartOfTransfer = false;
             byte[] result = new byte[DataLength + nextFrame.DataLength];
