@@ -199,6 +199,18 @@ namespace RevolveUavcanTest.Uavcan
             yield return new object[] { new UavcanFrame { Type = FrameType.SingleFrame }, new UavcanFrame { Type = FrameType.MultiFrameEnd } };
             yield return new object[] { new UavcanFrame { Type = FrameType.MultiFrameMiddle }, new UavcanFrame { Type = FrameType.SingleFrame } };
             yield return new object[] { new UavcanFrame { Type = FrameType.MultiFrameEnd }, new UavcanFrame { Type = FrameType.SingleFrame } };
+            yield return new object[] { new UavcanFrame { Type = FrameType.MultiFrameStart, ToggleBit = true }, new UavcanFrame { Type = FrameType.MultiFrameMiddle, ToggleBit = true } };
+        }
+
+        [TestMethod]
+        [DynamicData(nameof(GetInvalidHeader), DynamicDataSourceType.Method)]
+        public void UavcanFrameInvalidHeaderThrows(BitArray headerBits)
+        {
+            Assert.ThrowsException<UavcanException>(() => new UavcanFrame(headerBits, new byte[12], 0));
+        }
+        public static IEnumerable<object[]> GetInvalidHeader()
+        {
+            yield return new object[] { new BitArray(20) };
         }
 
     }
