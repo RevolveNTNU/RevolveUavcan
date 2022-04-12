@@ -115,6 +115,27 @@ namespace RevolveUavcan.Tools
         }
 
         /// <summary>
+        /// Calculate the ulong value of a BitArray
+        /// </summary>
+        /// <param name="bitArray">The BitArray we want to calculate the corresponding ulong value for</param>
+        /// <returns>An integer representation of the BitArray</returns>
+        public static ulong GetULongFromBitArray(this BitArray bitArray)
+        {
+            if (bitArray.Length > 64)
+            {
+                throw new ArgumentException("BitArray length cannot be greater than 64 bits.");
+            }
+
+            // Initialize bitArrayWithMsb with values from bitArray and fill it with MSB
+            BitArray bitArrayWithMsb = FillBitArrayWithMSB(bitArray, 64);
+
+            // Find and return corresponding integer value from bitArrayWithMsb
+            int[] array = new int[2];
+            bitArrayWithMsb.CopyTo(array, 0);
+            return (uint)array[0] + ((ulong)(uint)array[1] << 32);
+        }
+
+        /// <summary>
         /// Calculate the long value of a BitArray
         /// </summary>
         /// <param name="bitArray">The BitArray we want to calculate the corresponding long value for</param>
