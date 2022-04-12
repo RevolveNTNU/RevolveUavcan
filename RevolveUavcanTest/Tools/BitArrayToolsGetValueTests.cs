@@ -126,6 +126,8 @@ namespace RevolveUavcanTest.Tools
 
         public static IEnumerable<object[]> GetFloatAndDoubleValidData()
         {
+            yield return new object[] { new BitArray(BitConverter.GetBytes((Half) 128)), 128 };
+            yield return new object[] { new BitArray(BitConverter.GetBytes((Half) (-128))), -128 };
             yield return new object[] { new BitArray(BitConverter.GetBytes(128D)), 128D };
             yield return new object[] { new BitArray(BitConverter.GetBytes(-128D)), -128D };
             yield return new object[] { new BitArray(BitConverter.GetBytes(-128F)), -128F };
@@ -142,7 +144,38 @@ namespace RevolveUavcanTest.Tools
 
         public static IEnumerable<object[]> GetFloatAndDoubleInvalidData()
         {
+            yield return new object[] { new BitArray(8) };
             yield return new object[] { new BitArray(42) };
+            yield return new object[] { new BitArray(69) };
+        }
+
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetULongValidData), DynamicDataSourceType.Method)]
+        public void GetULongValidArgsTest(BitArray bitArray, ulong expectedResult)
+        {
+            var result = bitArray.GetULongFromBitArray();
+            Assert.AreEqual(expectedResult, result);
+        }
+
+        public static IEnumerable<object[]> GetULongValidData()
+        {
+            yield return new object[] { new BitArray(BitConverter.GetBytes((ulong) 12)), (ulong) 12 };
+            yield return new object[] { new BitArray(BitConverter.GetBytes((ulong) 17)), (ulong ) 17 };
+            yield return new object[] { new BitArray(BitConverter.GetBytes((ulong) 128)), (ulong) 128 };
+            yield return new object[] { new BitArray(BitConverter.GetBytes((ulong) 12_000)), (ulong) 12_000 };
+            yield return new object[] { new BitArray(BitConverter.GetBytes((ulong) 3_000_000_000)), (ulong) 3_000_000_000 };
+        }
+
+        [TestMethod]
+        [DynamicData(nameof(GetULongInvalidData), DynamicDataSourceType.Method)]
+        public void GetULongInvalidArgsTest(BitArray bitArray)
+        {
+            Assert.ThrowsException<ArgumentException>(() => bitArray.GetULongFromBitArray());
+        }
+
+        public static IEnumerable<object[]> GetULongInvalidData()
+        {
             yield return new object[] { new BitArray(69) };
         }
     }
