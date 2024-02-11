@@ -115,6 +115,27 @@ namespace RevolveUavcan.Tools
         }
 
         /// <summary>
+        /// Calculate the ulong value of a BitArray
+        /// </summary>
+        /// <param name="bitArray">The BitArray we want to calculate the corresponding ulong value for</param>
+        /// <returns>An integer representation of the BitArray</returns>
+        public static ulong GetULongFromBitArray(this BitArray bitArray)
+        {
+            if (bitArray.Length > 64)
+            {
+                throw new ArgumentException("BitArray length cannot be greater than 64 bits.");
+            }
+
+            // Initialize bitArrayWithMsb with values from bitArray and fill it with MSB
+            BitArray bitArrayWithMsb = FillBitArrayWithMSB(bitArray, 64);
+
+            // Find and return corresponding integer value from bitArrayWithMsb
+            int[] array = new int[2];
+            bitArrayWithMsb.CopyTo(array, 0);
+            return (uint)array[0] + ((ulong)(uint)array[1] << 32);
+        }
+
+        /// <summary>
         /// Calculate the long value of a BitArray
         /// </summary>
         /// <param name="bitArray">The BitArray we want to calculate the corresponding long value for</param>
@@ -137,7 +158,7 @@ namespace RevolveUavcan.Tools
 
         public static double GetFloatFromBitArray(this BitArray dataBits)
         {
-            if (dataBits.Length != 64 && dataBits.Length != 32)
+            if (dataBits.Length != 64 && dataBits.Length != 32 && dataBits.Length != 16)
             {
                 throw new ArgumentException("Invalid bit length.");
             }
@@ -145,8 +166,13 @@ namespace RevolveUavcan.Tools
             byte[] bytes = new byte[dataBits.Length / 8];
 
             dataBits.CopyTo(bytes, 0);
-
-            return dataBits.Length == 64 ? BitConverter.ToDouble(bytes, 0) : BitConverter.ToSingle(bytes, 0);
+            
+            if(dataBits.Length == 16)
+                return (double) BitConverter.ToHalf(bytes, 0);
+            else if(dataBits.Length == 32)
+                return BitConverter.ToSingle(bytes, 0);
+            else
+                return BitConverter.ToDouble(bytes, 0);
         }
 
         public static byte[] GetByteArrayFromBitArray(this BitArray bitArray)

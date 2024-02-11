@@ -134,7 +134,7 @@ namespace RevolveUavcan.Uavcan
             result = channel.Basetype switch
             {
                 BaseType.SIGNED_INT => dataBits.GetLongFromBitArray(),
-                BaseType.UNSIGNED_INT => dataBits.GetUIntFromBitArray(),
+                BaseType.UNSIGNED_INT => dataBits.GetULongFromBitArray(),
                 BaseType.BOOLEAN => dataBits.Get(0) ? 1D : 0D,
                 BaseType.FLOAT => dataBits.GetFloatFromBitArray(),
                 _ => result
