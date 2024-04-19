@@ -166,10 +166,10 @@ namespace RevolveUavcan.Tools
             byte[] bytes = new byte[dataBits.Length / 8];
 
             dataBits.CopyTo(bytes, 0);
-            
-            if(dataBits.Length == 16)
-                return (double) BitConverter.ToHalf(bytes, 0);
-            else if(dataBits.Length == 32)
+
+            if (dataBits.Length == 16)
+                return (double)BitConverter.ToHalf(bytes, 0);
+            else if (dataBits.Length == 32)
                 return BitConverter.ToSingle(bytes, 0);
             else
                 return BitConverter.ToDouble(bytes, 0);
@@ -256,3 +256,4 @@ namespace RevolveUavcan.Tools
         }
 
     }
+}

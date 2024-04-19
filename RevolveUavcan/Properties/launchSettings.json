@@ -1,7 +1,9 @@
 {
   "profiles": {
     "Profile 1": {
-      "commandName": "Executable"
+      "commandName": "Executable",
+      "executablePath": "C:\\Users\\Alice Madama\\RevolveUavcan\\RevolveUavcan.sln",
+      "workingDirectory": "C:\\Users\\Alice Madama\\RevolveUavcan"
     }
   }
 }
