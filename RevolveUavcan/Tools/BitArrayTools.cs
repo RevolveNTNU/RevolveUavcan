@@ -166,10 +166,10 @@ namespace RevolveUavcan.Tools
             byte[] bytes = new byte[dataBits.Length / 8];
 
             dataBits.CopyTo(bytes, 0);
-            
-            if(dataBits.Length == 16)
-                return (double) BitConverter.ToHalf(bytes, 0);
-            else if(dataBits.Length == 32)
+
+            if (dataBits.Length == 16)
+                return (double)BitConverter.ToHalf(bytes, 0);
+            else if (dataBits.Length == 32)
                 return BitConverter.ToSingle(bytes, 0);
             else
                 return BitConverter.ToDouble(bytes, 0);
@@ -230,7 +230,24 @@ namespace RevolveUavcan.Tools
 
         public static BitArray GetBitArrayFromDouble(double value, int size)
         {
-            var bytes = size == 64 ? BitConverter.GetBytes(value) : BitConverter.GetBytes((float)value);
+            byte[] bytes;
+            if (size == 64)
+            {
+                bytes = BitConverter.GetBytes(value);
+            }
+            else if (size == 32)
+            {
+                bytes = BitConverter.GetBytes((float)value);
+            }
+            else if (size == 16)
+            {
+                bytes = BitConverter.GetBytes((Half)value);
+            }
+            else
+            {
+                throw new ArgumentException("Unsupported bit length; must be 16, 32, or 64 bits.");
+            }
+
             if (!BitConverter.IsLittleEndian)
             {
                 Array.Reverse(bytes);
