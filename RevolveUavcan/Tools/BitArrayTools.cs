@@ -234,10 +234,7 @@ namespace RevolveUavcan.Tools
             if (size == 64)
             {
                 bytes = BitConverter.GetBytes(value);
-            }
-            else if (size == 32)
-            {
-                bytes = BitConverter.GetBytes((float)value);
+
             }
             else if (size == 16)
             {
@@ -245,7 +242,7 @@ namespace RevolveUavcan.Tools
             }
             else
             {
-                throw new ArgumentException("Unsupported bit length; must be 16, 32, or 64 bits.");
+                bytes = BitConverter.GetBytes((float)value);
             }
 
             if (!BitConverter.IsLittleEndian)
