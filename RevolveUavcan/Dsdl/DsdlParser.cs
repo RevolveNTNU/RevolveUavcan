@@ -36,14 +36,14 @@ namespace RevolveUavcan.Dsdl
                 throw new DsdlException($"Dsdl Path: {DsdlPath} could not be found!");
             }
 
-            // Parse each .uavcan file in the directory, including subdirectories
+            // Parse each .dsdl file in the directory, including subdirectories
             // Converted to list to easily add the root namespace folder as well
             var dirs = Directory.GetDirectories(DsdlPath, "*", SearchOption.AllDirectories).ToList();
             dirs.Add(DsdlPath);
 
             foreach (var file in dirs
                 .SelectMany(Directory.GetFiles)
-                .Where(fileName => fileName.Contains(".uavcan")))
+                .Where(fileName => fileName.Contains(".dsdl")))
             {
                 var (fullName, _, _) = FullTypenameVersionAndDtidFromFilename(file);
                 if (!ParsedDsdlDict.ContainsKey(fullName))
