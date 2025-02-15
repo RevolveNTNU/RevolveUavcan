@@ -705,7 +705,7 @@ namespace RevolveUavcan.Dsdl
 
             var items = basename.Split('.');
             if (items.Length != 2 && items.Length != 3 && items.Length != 4 && items.Length != 5 ||
-                (items.Last() != "uavcan") && items.Last() != "dsdl")
+                ((items.Last() != "uavcan") || (items.Last() != "dsdl"))
             {
                 throw new DsdlException("Only .uavcan and .dsdl files can be parsed!");
             }
