@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.Globalization;
 using System.IO;
+using System.IO.Enumeration;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Attribute = RevolveUavcan.Dsdl.Fields.Attribute;
@@ -43,7 +44,7 @@ namespace RevolveUavcan.Dsdl
 
             foreach (var file in dirs
                 .SelectMany(Directory.GetFiles)
-                .Where(fileName => fileName.Contains(".uavcan") || fileName.Contains("dsdl")))
+                .Where(fileName => fileName.EndsWith(".uavcan") || fileName.EndsWith(".dsdl")))
             {
                 var (fullName, _, _) = FullTypenameVersionAndDtidFromFilename(file);
                 if (!ParsedDsdlDict.ContainsKey(fullName))
@@ -568,6 +569,8 @@ namespace RevolveUavcan.Dsdl
             var directory = LocateNamespaceDirectory(nameSpace, refFilename);
 
             DirectoryInfo d = new DirectoryInfo(directory);
+
+            // Search for .uavcan files
             var files = d.GetFiles("*.uavcan");
             foreach (var filename in files)
             {
@@ -576,6 +579,23 @@ namespace RevolveUavcan.Dsdl
                 string shortFileName = Path.GetFileName(file);
 
                 string rawFile = (rawTypeDef + ".uavcan");
+
+                if (rawFile.Contains("." + shortFileName) || rawFile.Contains("/" + shortFileName) ||
+                    rawFile == shortFileName)
+                {
+                    return filename.ToString();
+                }
+            }
+
+            // Search for .dsdl files
+            var dsdlFiles = d.GetFiles("*.dsdl");
+            foreach (var filename in dsdlFiles)
+            {
+                var splittedName = filename.ToString().Split('.').ToList();
+                string file = (splittedName.Count == 3) ? splittedName[1] + "." + splittedName[2] : filename.ToString();
+                string shortFileName = Path.GetFileName(file);
+
+                string rawFile = (rawTypeDef + ".dsdl");
 
                 if (rawFile.Contains("." + shortFileName) || rawFile.Contains("/" + shortFileName) ||
                     rawFile == shortFileName)
@@ -704,10 +724,9 @@ namespace RevolveUavcan.Dsdl
             string basename = Path.GetFileName(filename);
 
             var items = basename.Split('.');
-            if (items.Length != 2 && items.Length != 3 && items.Length != 4 && items.Length != 5 ||
-               ((items.Last() != "uavcan") && (items.Last() != "dsdl")))
+            if (items.Length != 2 && items.Length != 3 && items.Length != 4 && items.Length != 5 || ((items.Last() != "uavcan") && (items.Last() != "dsdl")))
             {
-                throw new DsdlException("Only .uavcan and .dsdl files can be parsed!");
+                throw new DsdlException($"Only .uavcan and .dsdl files can be parsed! {basename} threw an error");
             }
 
             uint defaultDataID = 0;
